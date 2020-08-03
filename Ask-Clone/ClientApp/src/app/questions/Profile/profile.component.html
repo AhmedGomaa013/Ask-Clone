@@ -1,0 +1,82 @@
+<div *ngIf="showComponent">
+    <div class="container my-5 div-panel">
+      <div class="row justify-content-center">
+          <img src="assets/svg/person-24px.svg"/>
+            <h3 class="mt-2">{{username}}</h3>
+        </div>
+        
+        <div class="row">
+        <div class="col-sm-12 div-flex">
+          <div>
+            <h4 class="text-center">100</h4>
+            <h6 class="text-center">Following</h6>
+          </div>
+
+          <div>
+            <h5 class="text-center">{{questions.length}}</h5>
+            <h6 class="text-center">{{questions.length==1?'Answer':'Answers'}}</h6>  
+          </div>
+          
+          <div>
+            <h5 class="text-center">100</h5>
+            <h6 class="text-center">Followers</h6>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row" *ngIf="username != authService.username">
+        <form (submit)="onAsk()" #theForm="ngForm"  class="form-group col-md-12 flex-col" novalidate>    
+          <textarea class="form-control mt-2" rows="3" placeholder="Ask me anything!" name="question" 
+          required [(ngModel)]="question" maxlength="300">
+        </textarea>
+          <div class="mt-2">
+            <div class="float-left">
+            <mat-slide-toggle  name="anon" [(ngModel)]="anon" *ngIf="authService.isLoggedIn">
+              <span class="{{anon?'anon-checked':'anon-unchecked'}} ml-1">Anonymous</span>
+            </mat-slide-toggle>
+          </div>
+
+          <div class="float-right">
+            <span class="anon-checked mr-1">{{300-question.length}}</span>
+            <input type="submit" class="btn button-ask" value="Ask Question" [disabled]="theForm.invalid"/>
+          </div>
+        </div>
+        </form>
+
+      </div>
+    </div>
+
+    <div *ngIf="questions.length>0">
+        <div class="container div-panel" *ngFor="let question of questions">
+          <a *ngIf="authService.isLoggedIn" class="delete-a mt-2" role="button" (click)="onConfirmDeletion(question)"><i class="fa fa-close"></i></a>
+            
+          <div class="flex-col">
+              <div class="fa q-font no-space">{{question.question}}</div>
+              <div>
+                <a href="user/{{question.questionFrom}}" *ngIf="question.questionFrom" class="fa fa-lg div-question-from no-space">{{question.questionFrom}}</a>
+                <h6 *ngIf="!question.questionFrom" class="fa fa-lg div-question-from no-space">Anon</h6>
+              </div>
+            </div>
+            
+            
+            <div class="flex ml-2">
+                <img src="assets/svg/person-24px.svg" height="40" width="40"/>
+                <div class="flex-col">
+                   <h6 class="fa user-font no-space" >{{question.questionTo}}</h6>
+                   <span class="fa ml-2 no-space">{{ question.time | timeAgo}}</span>
+              </div>
+            </div>
+            
+            <div class="fa a-font mt-2">{{question.answer}}</div>
+        </div>
+    </div>
+    
+<div *ngIf="questions.length<1">
+      <h3 class="text-md-center mt-3 ">There's no answers yet</h3>
+    </div>
+</div>
+
+<div *ngIf="showError">
+    <h3 class="text-md-center mt-3">Sorry, this page isn't available.</h3>
+    <p class="text-center mt-4">The link you followed may be broken, or the page may have been removed.<a [routerLink]="['/']">Go back to Home</a></p>>
+</div>

@@ -1,0 +1,41 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <br />
+            <h2 class="text-center header-color">Log in to Ask-Clone</h2>
+            <div *ngIf="errorMessage" class="text-center text-danger mt-2">{{ errorMessage }}</div>
+            
+            <form (submit)="onLogin()" #theForm="ngForm" novalidate>
+               
+              <div class="form-group">
+                <input class="form-control" name="username" placeholder="Username"
+                       [(ngModel)]="user.username" #username="ngModel" required minlength="5" maxlength="25" />
+                <div *ngIf="username.touched&&username.invalid&&username.errors.required" class="text-warning">
+                  Username is required!
+                </div>
+                <div *ngIf="username.touched&&username.invalid&&username.errors.minlength" class="text-danger">
+                  Username must be at least 5 characters long.
+                </div>
+              </div>
+
+                  <div class="form-group">
+                    <input type="password" class="form-control" name="password" placeholder="Password"
+                           [(ngModel)]="user.password" #password="ngModel" required />
+                    <div *ngIf="password.touched&&password.invalid&&password.errors.required" class="text-warning">
+                      Password is required!
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <i class="fa fa-spinner fa-spin mr-2" *ngIf="connectionMade"></i>
+                    <input type="submit" class="btn button-login" value="Login" [disabled]="theForm.invalid||connectionMade" />
+                    <a class="btn btn-default text-dark" [routerLink]="['/']">Cancel</a>
+                  </div>
+
+                  <div>
+                    <a [routerLink]="['/signup']" class="text-dark">Not a member yet?</a>
+                  </div>
+            </form>
+        </div>
+    </div>
+</div>

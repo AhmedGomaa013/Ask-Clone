@@ -1,0 +1,33 @@
+<nav class="navbar py-3 nav-bg text-white flex">
+  <div class="buttons">
+    <a [routerLink]="['/']" class="btn">
+      <div class="title-color div-font">Ask-Clone</div>
+    </a>
+
+    <a [routerLink]="['user',auth.username]" *ngIf="auth.isLoggedIn" class="btn">
+      <div class="title-color">Profile</div>
+    </a>
+
+    <a [routerLink]="['inbox',auth.username]" *ngIf="auth.isLoggedIn" class="btn">
+      <div class="title-color">Inbox</div>
+    </a>
+  </div>
+
+  
+   
+  
+  <div class="buttons">
+    <a [routerLink]="['login']" class="btn btn-sm btn-link a-fg font-weight-bold a-bg" *ngIf="!auth.isLoggedIn">Log In</a>
+    <a [routerLink]="['signup']" class="btn btn-sm font-weight-bold a-fg a-bg ml-1" *ngIf="!auth.isLoggedIn">Sign Up</a>
+
+    <div class="form-group flex">
+      <input class=" form-control" name="searchValue" (keydown)="onTest($event)" *ngIf="auth.isLoggedIn" [(ngModel)]="searchValue"
+             type="text" placeholder="Search" aria-label="Search">
+
+        <button style="width: 90px;" class="btn btn-sm font-weight-bold button-fg button-bg ml-1" *ngIf="auth.isLoggedIn" (click)="onLogout()">
+          Log out
+        </button>
+      </div>
+  </div>
+</nav>
+  

@@ -1,0 +1,36 @@
+div.div-panel
+{
+    background-color: #d4b5b0;
+    color: #383e56;
+    display: flex; 
+    justify-content: space-between;
+}
+
+.flex
+{
+    display: flex;
+}
+
+.no-space
+{
+    padding: 0px; 
+    margin: 0px;
+}
+
+.btn-default
+{
+    color: #d4b5b0;
+    background-color: #383e56;
+}
+
+a.color
+{
+    color: #383e56;
+}
+
+.mar
+{
+    padding-top: 8px;
+    padding-right: 8px;
+    margin-top: 10px;
+}

@@ -1,0 +1,18 @@
+<div class="container">
+<h6 class="text-center mt-3 color">There's {{searchResult.length}} search {{searchResult.length==1?'result':'results'}} for "{{searchValue}}"</h6>
+<div class="row mt-3" *ngIf="searchResult.length">
+    <div class=" div-panel mar col-md-12"  *ngFor="let result of searchResult">
+       <div class="flex ml-2">
+        <i class="fa fa-2x fa-user mt-2 ml-1"></i>
+        <div class="ml-2">
+            <h6 class="mt-1 no-space">{{result.firstName}} {{result.lastName}}</h6>
+            <a class="no-space color" href="user/{{result.userName}}">@{{result.userName}}</a>
+        </div>
+    </div>
+    <div>
+        <a class="btn btn-default mr-2" href="user/{{result.userName}}">Ask</a>
+        <a class="btn btn-default" >Follow</a>
+    </div>
+    </div>
+</div>
+</div>

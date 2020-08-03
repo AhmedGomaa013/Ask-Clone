@@ -1,0 +1,94 @@
+div.div-panel
+{
+    background-color: #d4b5b0;
+    color: #383e56;
+}
+.flex
+{
+    display: flex;
+}
+
+div.div-flex
+{
+    display: flex; 
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+a.delete-a
+{
+    font-size: x-large;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+input.button-ask{
+    background-color: #383e56;
+    color: #eedad1;
+}
+
+.div-question-from
+{
+    padding: 2px;
+    color: maroon;
+    font-size: 16px;
+}
+.fa-close
+{
+    color: #383e56;
+}
+.form-control:focus {
+    border-color: #d4b5b0;
+    box-shadow: 0 0 0 0.2rem #d4b5b0;
+}
+.user-font
+{
+    font-size: 20px;
+}
+
+.date-font
+{
+    font-size: smaller;
+}
+
+.q-font
+{
+    font-size: large;
+    font-weight:bold;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.a-font {
+  font-size: large;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.no-space
+{
+    padding: 0px; margin: 1px;
+}
+
+.flex-col
+{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+/deep/ .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
+  background-color: #383e56;
+}
+
+/deep/ .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb {
+  background-color: #383e56;
+}
+
+
+.anon-checked {
+  font-weight: bold;
+  color: #383e56;
+}
+
+.anon-unchecked {
+  color: #383e56;
+}

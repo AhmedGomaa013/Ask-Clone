@@ -1,0 +1,20 @@
+div.div-danger{
+    color: red; 
+    font-size: large;
+    font-weight: 500;
+}
+
+div.div-warning {
+  color: #EEEE60;
+  font-size: large;
+  font-weight: 500;
+}
+
+.button-login{
+    background-color: #383e56;
+    color: #eedad1;
+}
+
+h2.header-color {
+  color: #383e56;
+}

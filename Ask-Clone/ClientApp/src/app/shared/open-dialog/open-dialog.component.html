@@ -1,0 +1,15 @@
+<h1 mat-dialog-title style="font-weight: bold;" class="text-center">{{data.title}}</h1>
+<div mat-dialog-content>
+    <p class="text-center">{{data.content}}</p>
+    <textarea class="form-control mt-2" rows="3" placeholder="Write your answer!" name="answer"
+    [(ngModel)]="answer" cols="150px" *ngIf="!data.delete" maxlength="3000"></textarea>
+</div>
+<div mat-dialog-actions class="buttons-flex">
+    <button class="btn btn-danger ml-2" (click)="onYesClick()" *ngIf="data.delete">Yes</button>
+    <button class="btn btn-success mr-2" cdkFocusInitial (click)="onNoClick()" *ngIf="data.delete">No</button>
+    
+    <button type="submit" [disabled]="answer=='' || answer.length>3000" class="btn btn-success ml-2" *ngIf="!data.delete" (click)="onYesClick()">Confirm</button>
+    <button class="btn btn-danger mr-2"  (click)="onNoClick()" *ngIf="!data.delete">Cancel</button>
+    <span class="answer-number mr-2" *ngIf="!data.delete">{{3000 - answer.length}}</span>
+    <span class="text-danger mr-2">{{errorMessage}}</span>
+  </div>

@@ -1,0 +1,23 @@
+
+.buttons-flex
+{
+    display: flex; 
+    flex-direction: row-reverse;
+}
+
+.btn-danger
+{
+    background-color: maroon;
+    font-size: large;
+}
+
+.btn-success
+{
+    background-color: rgb(2, 82, 2);
+    font-size: large;
+}
+
+.answer-number {
+    font-weight: bold;
+    color: black;
+  }

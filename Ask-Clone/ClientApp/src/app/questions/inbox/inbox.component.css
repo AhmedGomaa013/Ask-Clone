@@ -1,0 +1,32 @@
+div.div-panel
+{
+    background-color: #d4b5b0;
+    color: #383e56;
+}
+
+.div-flex
+{
+    display: flex; 
+    flex-direction: row-reverse;
+}
+
+.flex-wrap
+{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+a.delete-a
+{
+    font-size: x-large;   
+}
+
+.no-space
+{
+    padding: 0px; margin: 1px;
+}
+
+.writing-color
+{
+    color: #383e56;
+}

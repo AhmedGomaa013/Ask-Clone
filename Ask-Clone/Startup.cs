@@ -1,10 +1,22 @@
+using Ask_Clone.Models;
+using Ask_Clone.Models.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Reflection;
+using System.Text;
+using Newtonsoft.Json;
+using AutoMapper;
 
 namespace Ask_Clone
 {
@@ -20,7 +32,40 @@ namespace Ask_Clone
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<AuthenticationContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddDbContext<AuthenticationContext>(options =>
+           options.UseSqlServer(Configuration.GetConnectionString("IdentityConnection")));
+
+
+            services.AddScoped<IQuestionsRepository, QuestionsRepository>();
+
+            services.AddAutoMapper(Assembly.GetEntryAssembly());
+            services.AddControllersWithViews().AddNewtonsoftJson(opt =>
+            opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize);
+
+            //Authentication
+            var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("Token").ToString());
+            services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(opt => {
+                opt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
@@ -44,6 +89,9 @@ namespace Ask_Clone
             }
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
