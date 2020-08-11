@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { OpenDialogComponent } from 'src/app/shared/open-dialog/open-dialog.component';
 import { ToastrService } from 'ngx-toastr';
 import { DataService } from 'src/app/shared/data.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-inbox',
@@ -14,8 +15,8 @@ import { DataService } from 'src/app/shared/data.service';
 })
 export class InboxComponent implements OnInit {
 
-  constructor(private authService:AuthService,private router:Router,private dialog:MatDialog,
-    private toastrService:ToastrService, private dataService:DataService) { }
+  constructor(private authService: AuthService, private router: Router, private dialog: MatDialog,
+    private toastrService: ToastrService, private dataService: DataService, private title: Title) { }
 
   username:string='';
   questions:Question[] = [];
@@ -56,12 +57,11 @@ onConfirmDeletion(question:Question)
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      question.answer = result;
-      if((result != 0)&&(result != ''))
+      if(result)
       {
+        question.answer = result;
         this.onEditing(question);
       }
-      
     })
   }
 
@@ -88,7 +88,9 @@ ngOnInit() {
   this.username = this.router.url.slice(7);
   if (!this.username.length) this.router.navigateByUrl('/');
   if (this.authService.username != this.username) this.router.navigate(['inbox', this.authService.username]);
-    this.dataService.authorizedGet().subscribe({
+
+  this.title.setTitle("Inbox - " + this.username);
+  this.dataService.getUnansweredQuestions().subscribe({
       next: questions =>{
         this.questions = questions;
         this.onSortQuestions();

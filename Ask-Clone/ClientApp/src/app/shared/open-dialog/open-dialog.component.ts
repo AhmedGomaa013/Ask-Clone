@@ -16,14 +16,14 @@ export interface DialogData
 
 export class OpenDialogComponent{
 
-  constructor(private dialogRef:MatDialogRef<OpenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data:DialogData) { }
+  constructor(private dialogRef: MatDialogRef<OpenDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogData) { }
   
   answer:string=this.data.answer;
   errorMessage='';
   onNoClick()
   {
-    this.dialogRef.close(0);
+    this.dialogRef.close();
   }
 
   onYesClick()

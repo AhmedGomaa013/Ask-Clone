@@ -1,0 +1,25 @@
+  <h1 mat-dialog-title style="font-weight: bold;" class="color text-center">{{data.title}}</h1>
+
+  <div mat-dialog-content *ngIf="showUsers">
+    <div *ngIf="users.length">
+      <div *ngFor="let user of users" class="round div-panel mar mt-1">
+        <a class="flex ml-1 color btn" href="user/{{user.userName}}">
+          <i class="fa fa-2x fa-user mt-2 ml-1"></i>
+          <div class="ml-2">
+            <h6 class="mt-1 no-space">{{user.firstName}} {{user.lastName}}</h6>
+            <div class="no-space mr-4">@{{user.userName}}</div>
+          </div>
+        </a>
+        <div class="mt-2" *ngIf="user.userName != auth.username">
+          <button *ngIf="!user.isFollowed" (click)="onFollow(user)" class="btn btn-default">Follow</button>
+          <button *ngIf="user.isFollowed" (click)="onUnfollow(user)" class="btn btn-default">Unfollow</button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!users.length" class="pt-2 mt-2" style="font-size:large;">
+      There's nothing here yet!
+    </div>
+
+    <div style="" class="mt-2 pt-2"></div>
+  </div>

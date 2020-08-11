@@ -18,18 +18,13 @@ export class NavBarComponent{
   {
     if(event.keyCode == 13)
     {
-      this.userService.search(this.searchValue).subscribe({
-        next: results => {
-          this.userService.searchResult = results;
-          this.router.navigate(['search'],{queryParams:{username:this.searchValue}});
-        },
-        error: err => console.log(err)
-      });
+      this.router.navigate(['search'], { queryParams: { username: this.searchValue } });
     }
   }
   onLogout(){
     this.auth.token = '';
     this.auth.username = '';
+    this.searchValue = '';
     this.auth.clearCreds();
     this.router.navigateByUrl('login');
   }

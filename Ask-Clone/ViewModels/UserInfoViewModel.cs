@@ -10,5 +10,6 @@ namespace Ask_Clone.ViewModels
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string UserName { get; set; }
+        public bool IsFollowed { get; set; }
     }
 }

@@ -10,12 +10,12 @@ export class DataService {
 
   private readonly baseurl = 'api/Questions/';
 
-  authorizedGet():Observable<Question[]>
+  getUnansweredQuestions():Observable<Question[]>
   {
     return this.http.get<Question[]>(this.baseurl);
   }
 
-  unauthorizedGet(username:string):Observable<Question[]>
+  getAnsweredQuestions(username:string):Observable<Question[]>
   {
     return this.http.get<Question[]>(this.baseurl+username);
   }

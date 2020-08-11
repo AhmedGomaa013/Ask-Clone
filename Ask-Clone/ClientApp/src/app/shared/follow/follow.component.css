@@ -1,0 +1,40 @@
+.div-panel {
+  background-color: #d4b5b0;
+  color: #383e56;
+  display: flex;
+  justify-content: space-between;
+}
+
+.no-space {
+  padding: 0px;
+  margin: 0px;
+}
+
+.flex {
+  display: flex;
+}
+
+.color {
+  color: #383e56;
+}
+
+.btn-default {
+  color: #d4b5b0;
+  background-color: #383e56;
+}
+
+.mar {
+  padding-top: 5px;
+  padding-right: 4px;
+  margin-top: 5px;
+}
+
+.round
+{
+    border-radius:5px;
+}
+
+.btn:focus {
+  border-color: #d4b5b0;
+  box-shadow: 0 0 0 0rem #d4b5b0;
+}

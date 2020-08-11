@@ -5,7 +5,6 @@ import { Router } from "@angular/router";
 import { RegisterUser } from "./register-user";
 import { SearchResult } from "./search-result";
 import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
 
 @Injectable()
 export class UserService {
@@ -25,8 +24,38 @@ export class UserService {
         return this.http.post(this.baseUrl+'Register',user);
     }
 
-  search(searchValue: string): Observable<SearchResult[]>
-  {
-    return this.http.get<SearchResult[]>(this.baseUrl+'search', { params: { username: searchValue } });
+    search(searchValue: string): Observable<SearchResult[]>
+    {
+        return this.http.get<SearchResult[]>(this.baseUrl+'search', { params: { username: searchValue } });
+    }
+
+    follow(username:string)
+    {
+        return this.http.get(this.baseUrl+'follow/'+username);
+    }
+
+    unfollow(username:string)
+    {
+        return this.http.get(this.baseUrl+'unfollow/'+username);
+    }
+
+    isFollowed(username:string):Observable<boolean>
+    {
+        return this.http.get<boolean>(this.baseUrl+'isfollowing/'+username);
+    }
+
+    getFollowers(username:string)
+    {
+        return this.http.get(this.baseUrl+'followers/'+username);
+    }
+
+    getFollowing(username:string)
+    {
+        return this.http.get(this.baseUrl+'following/'+username);
+    }
+
+    followingFollowersNumber(username:string)
+    {
+        return this.http.get(this.baseUrl+'FollowingFollowersNumber/'+username);
     }
 }

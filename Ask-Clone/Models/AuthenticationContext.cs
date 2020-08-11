@@ -16,14 +16,11 @@ namespace Ask_Clone.Models
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.Entity<ApplicationUser>()
-                .HasMany(x => x.Followers);
-            builder.Entity<ApplicationUser>()
-                .HasMany(x => x.Following);
         }
 
         public DbSet<ApplicationUser> ApplicationUsers {get;set;}
         public DbSet<Questions> Questions { get; set; }
+        public DbSet<Follow> Follow { get; set; }
     }
 
     public class AuthenticationContextFactory: IDesignTimeDbContextFactory<AuthenticationContext>

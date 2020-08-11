@@ -3,6 +3,25 @@ div.div-panel
     background-color: #d4b5b0;
     color: #383e56;
 }
+
+.follow
+{
+    background-color: #383e56;
+    color: #d4b5b0;
+}
+
+.unfollow
+{
+    background-color: #eedad1;
+    color: #383e56;
+}
+
+.btn-block:focus
+{
+    border-color: #d4b5b0;
+    box-shadow: 0 0 0 0.2rem #d4b5b0;
+}
+
 .flex
 {
     display: flex;
@@ -91,4 +110,9 @@ input.button-ask{
 
 .anon-unchecked {
   color: #383e56;
+}
+
+.round
+{
+    border-radius:5px;
 }

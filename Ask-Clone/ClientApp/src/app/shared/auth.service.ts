@@ -44,6 +44,7 @@ export class AuthService {
     this.username = '';
     this.isLoggedIn = false;
   }
+
   isLoggedInFunc(){
     if(this.token)
     {
@@ -62,6 +63,5 @@ export class AuthService {
       }
     }
     this.clearCreds();
-    
   }
 }

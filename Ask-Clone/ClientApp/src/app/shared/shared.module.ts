@@ -14,18 +14,20 @@ import { AuthInterceptor } from './auth-interceptor';
 import { DataService } from './data.service';
 import { RoutingGuard } from './routing-guard.service';
 import { OpenDialogComponent } from './open-dialog/open-dialog.component';
+import { FollowComponent } from './follow/follow.component';
 
 
 
 @NgModule({
-  declarations: [ConfirmEqualDirective, OpenDialogComponent,TimeAgoPipe],
+  declarations: [ConfirmEqualDirective, OpenDialogComponent,TimeAgoPipe, FollowComponent],
   imports: [
     CommonModule,
     FormsModule,
     AngularFontAwesomeModule,
     MatDialogModule,
     RouterModule.forChild([
-      {path:'confirm/dialog/open',component:OpenDialogComponent}
+      {path:'confirm/dialog/open',component:OpenDialogComponent},
+      {path:'follow/dialog/open',component:FollowComponent}
     ])
   ],
   
@@ -35,7 +37,8 @@ HttpClientModule,
 AngularFontAwesomeModule,
 ConfirmEqualDirective,
 TimeAgoPipe,
-OpenDialogComponent],
+OpenDialogComponent,
+FollowComponent],
 
 providers:[UserService,
 AuthService,DataService,RoutingGuard,

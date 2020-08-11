@@ -22,14 +22,14 @@ namespace Ask_Clone.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IQuestionsRepository _questionsRepository;
+        private readonly IUserRepository _userRepository;
 
         public UserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
-            IQuestionsRepository questionsRepository)
+            IUserRepository userRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _questionsRepository = questionsRepository;
+            _userRepository = userRepository;
         }
         
         [HttpPost]
@@ -58,9 +58,9 @@ namespace Ask_Clone.Controllers
                     return BadRequest(ModelState);
                 }
             }
-            catch (Exception ex)
+            catch (Exception )
             {
-                throw ex;
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
             }
         }
 
@@ -105,9 +105,9 @@ namespace Ask_Clone.Controllers
                     return BadRequest(ModelState);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Failed to get user data, err:{e}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to get user data");
             }
         }
 
@@ -116,22 +116,32 @@ namespace Ask_Clone.Controllers
         [Route("Search")]
         //Get => api/User/Search?username=
 
-        public ActionResult Search(string? username)
+        public async Task<ActionResult> Search([FromQuery]string username)
         {
             try
             {
-                var users = _questionsRepository.GetAllUsersByUser(username);
+                var authorizedUsername = User.Claims.First(o => o.Type == "UserName").Value;
+                var authorizedUser = await _userManager.FindByNameAsync(authorizedUsername);
+                if (authorizedUser == null) return StatusCode(StatusCodes.Status404NotFound);
+
+                var users = _userRepository.GetAllUsersByName(username);
                 if (users == null) return StatusCode(StatusCodes.Status404NotFound);
 
                 List<UserInfoViewModel> returnUsers = new List<UserInfoViewModel>();
                 foreach (var item in users)
                 {
+                    if (authorizedUser.UserName == item.UserName) continue;
+
                     UserInfoViewModel user = new UserInfoViewModel()
                     {
                         FirstName = item.FirstName,
                         LastName = item.LastName,
                         UserName = item.UserName
                     };
+                    
+                    if (_userRepository.GetFollowByUsers(item, authorizedUser) != null) user.IsFollowed = true;
+                    else user.IsFollowed = false;
+
                     returnUsers.Add(user);
                 }
 
@@ -152,25 +162,28 @@ namespace Ask_Clone.Controllers
         {
             try
             {
-                var following = await _userManager.FindByNameAsync(user);
-                if (following == null) return NotFound("Couldn't find the User");
+                var followedUser = await _userManager.FindByNameAsync(user);
+                if (followedUser == null) return StatusCode(StatusCodes.Status404NotFound);
 
-                var followerUsername = User.Claims.First(u => u.Type == "UserName").Value;
-                var follower = await _userManager.FindByNameAsync(followerUsername);
-                if (follower == null) return NotFound("Couldn't find the User");
+                var followingUsername = User.Claims.First(u => u.Type == "UserName").Value;
+                var followingUser = await _userManager.FindByNameAsync(followingUsername);
+                if (followingUser == null) return StatusCode(StatusCodes.Status404NotFound);
 
-                if (follower.UserName == following.UserName) return BadRequest("Can't follow yourself!");
+                if (followedUser.UserName == followingUser.UserName) return StatusCode(StatusCodes.Status400BadRequest);
+                
+                Follow connection = _userRepository.GetFollowByUsers(followedUser, followingUser);
+                if(connection != null) return StatusCode(StatusCodes.Status400BadRequest);
 
-                following.Followers.Add(follower);
-                follower.Following.Add(following);
+                connection = new Follow() { FollowedUser = followedUser, FollowingUser = followingUser };
+                _userRepository.AddFollow(connection);
 
-                if (_questionsRepository.SaveAll())
+                if(_userRepository.SaveAll())
                 {
-                    return Ok();
+                    return StatusCode(StatusCodes.Status201Created);
                 }
                 else
                 {
-                    return BadRequest("Operation Failed!");
+                    return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
             catch(Exception)
@@ -187,40 +200,27 @@ namespace Ask_Clone.Controllers
         {
             try
             {
-                var following = await _userManager.FindByNameAsync(user);
-                if (following == null) return NotFound("Couldn't find the User");
+                var followedUser = await _userManager.FindByNameAsync(user);
+                if (followedUser == null) return StatusCode(StatusCodes.Status404NotFound);
 
-                var followerUsername = User.Claims.First(u => u.Type == "UserName").Value;
-                var follower = await _userManager.FindByNameAsync(followerUsername);
-                if (follower == null) return NotFound("Couldn't find the User");
+                var followingUsername = User.Claims.First(u => u.Type == "UserName").Value;
+                var followingUser = await _userManager.FindByNameAsync(followingUsername);
+                if (followingUser == null) return StatusCode(StatusCodes.Status404NotFound);
 
-                if (follower.UserName == following.UserName) return BadRequest("Can't unfollow yourself!");
+                if (followedUser.UserName == followingUser.UserName) return StatusCode(StatusCodes.Status400BadRequest);
 
-                if (following.Followers.Contains(follower))
-                {
-                    following.Followers.Remove(follower);
-                }
-                else
-                {
-                    return BadRequest("Operation Failed!");
-                }
+                Follow connection = _userRepository.GetFollowByUsers(followedUser, followingUser);
+                if (connection == null) return StatusCode(StatusCodes.Status404NotFound);
 
-                if (follower.Following.Contains(following))
-                {
-                    follower.Following.Remove(following);
-                }
-                else
-                {
-                    return BadRequest("Operation Failed!");
-                }
+                _userRepository.DeleteFollow(connection);
 
-                if (_questionsRepository.SaveAll())
+                if(_userRepository.SaveAll())
                 {
                     return Ok();
                 }
                 else
                 {
-                    return BadRequest("Operation Failed!");
+                    return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
             catch(Exception)
@@ -229,30 +229,43 @@ namespace Ask_Clone.Controllers
             }
         }
 
-        [Authorize]
+        
         [HttpGet]
-        [Route("Followers")]
-        //Get => api/User/Followers
-        public ActionResult Followers()
+        [Route("Followers/{username}")]
+        //Get => api/User/Followers/username
+        public async Task<ActionResult> Followers(string username)
         {
             try
             {
-                var username = User.Claims.First(u => u.Type == "UserName").Value;
-                var user = _questionsRepository.GetFollowersByUser(username);
-                List<UserInfoViewModel> followersInfo = new List<UserInfoViewModel>();
-
-                foreach (var item in user.Followers)
+                var loggedInUser = new ApplicationUser();
+                if (User.Identity.IsAuthenticated)
                 {
-                    var userdata = new UserInfoViewModel()
+                    var loggedInUsername = User.Claims.First(o => o.Type == "UserName").Value;
+                    loggedInUser = await _userManager.FindByNameAsync(loggedInUsername);
+                }
+
+                var user = await _userManager.FindByNameAsync(username);
+                if (user == null) return StatusCode(StatusCodes.Status404NotFound);
+
+                var users = _userRepository.GetFollowers(user);
+                List<UserInfoViewModel> followers = new List<UserInfoViewModel>();
+                foreach(var item in users)
+                {
+                    UserInfoViewModel follower = new UserInfoViewModel()
                     {
                         FirstName = item.FirstName,
                         LastName = item.LastName,
-                        UserName = item.UserName
+                        UserName = item.UserName,
+                        IsFollowed = false
                     };
-                    followersInfo.Add(userdata);
+                    if(loggedInUser.UserName != null)
+                    {
+                        if (_userRepository.GetFollowByUsers(item, loggedInUser) != null) follower.IsFollowed = true;
+                    }
+                    followers.Add(follower);
                 }
-
-                return Ok(followersInfo);
+                followers.OrderBy(o => o.UserName);
+                return Ok(followers);
             }
             catch(Exception)
             {
@@ -260,30 +273,45 @@ namespace Ask_Clone.Controllers
             }
         }
 
-        [Authorize]
         [HttpGet]
-        [Route("Following")]
+        [Route("Following/{username}")]
         //Get => api/User/Following
-        public ActionResult Following()
+        public async Task<ActionResult> Following(string username)
         {
             try
             {
-                var username = User.Claims.First(u => u.Type == "UserName").Value;
-                var user = _questionsRepository.GetFollowingByUser(username);
-                List<UserInfoViewModel> followingInfo = new List<UserInfoViewModel>();
-
-                foreach (var item in user.Following)
+                ApplicationUser loggedInUser = new ApplicationUser();
+                if (User.Identity.IsAuthenticated)
                 {
-                    var userdata = new UserInfoViewModel()
+                    var loggedInUsername = User.Claims.First(o => o.Type == "UserName").Value;
+                    loggedInUser = await _userManager.FindByNameAsync(loggedInUsername);
+                }
+
+                var user = await _userManager.FindByNameAsync(username);
+                if (user == null) return StatusCode(StatusCodes.Status404NotFound);
+
+                var users = _userRepository.GetFollowing(user);
+                List<UserInfoViewModel> followingUsers = new List<UserInfoViewModel>();
+                foreach (var item in users)
+                {                    
+                    UserInfoViewModel followingUser = new UserInfoViewModel()
                     {
                         FirstName = item.FirstName,
                         LastName = item.LastName,
-                        UserName = item.UserName
+                        UserName = item.UserName,
+                        IsFollowed = false
                     };
-                    followingInfo.Add(userdata);
+
+                    if (loggedInUser.UserName != null)
+                    {
+                        if (_userRepository.GetFollowByUsers(item, loggedInUser) != null) followingUser.IsFollowed = true;
+                    }
+
+                    followingUsers.Add(followingUser);
                 }
 
-                return Ok(followingInfo);
+                followingUsers.OrderBy(o => o.UserName);
+                return Ok(followingUsers);
             }
             catch(Exception)
             {
@@ -291,5 +319,52 @@ namespace Ask_Clone.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("IsFollowing/{username}")]
+        //Get => api/User/IsFollowing/username
+        public async Task<ActionResult> IsFollowing(string username)
+        {
+            try
+            {
+                var followedUser = await _userManager.FindByNameAsync(username);
+                if (followedUser == null) return StatusCode(StatusCodes.Status404NotFound);
+
+                var followingUsername = User.Claims.First(u => u.Type == "UserName").Value;
+                var followingUser = await _userManager.FindByNameAsync(followingUsername);
+                if (followingUser == null) return StatusCode(StatusCodes.Status404NotFound);
+
+                if (followedUser.UserName == followingUser.UserName) return StatusCode(StatusCodes.Status400BadRequest);
+
+                Follow connection = _userRepository.GetFollowByUsers(followedUser, followingUser);
+                if(connection == null)
+                {
+                    return Ok(false);
+                }
+                else
+                {
+                    return Ok(true);
+                }
+
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
+            }
+        }
+
+        [HttpGet]
+        [Route("FollowingFollowersNumber/{username}")]
+        //Get => api/User/FollowingFollowersNumber/username
+        public async Task<ActionResult> FollowingFollowersNumber(string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null) return StatusCode(StatusCodes.Status404NotFound);
+
+            var followers = _userRepository.GetFollowers(user);
+            var following = _userRepository.GetFollowing(user);
+
+            return Ok(new { followers = followers.Count, following = following.Count });
+        }
     }
 }

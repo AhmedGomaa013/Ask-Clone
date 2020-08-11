@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ask_Clone.Migrations
 {
     [DbContext(typeof(AuthenticationContext))]
-    [Migration("20200726192813_ModifyingDatabase")]
-    partial class ModifyingDatabase
+    [Migration("20200805180006_CreatingDatabase")]
+    partial class CreatingDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,6 +21,28 @@ namespace Ask_Clone.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("Ask_Clone.Models.Entities.Follow", b =>
+                {
+                    b.Property<int>("FollowId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("FollowedUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FollowingUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("FollowId");
+
+                    b.HasIndex("FollowedUserId");
+
+                    b.HasIndex("FollowingUserId");
+
+                    b.ToTable("Follow");
+                });
+
             modelBuilder.Entity("Ask_Clone.Models.Entities.Questions", b =>
                 {
                     b.Property<int>("QuestionId")
@@ -29,13 +51,15 @@ namespace Ask_Clone.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Answer")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(3000)")
+                        .HasMaxLength(3000);
 
                     b.Property<bool>("IsAnswered")
                         .HasColumnType("bit");
 
                     b.Property<string>("Question")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(300)")
+                        .HasMaxLength(300);
 
                     b.Property<string>("QuestionFromId")
                         .HasColumnType("nvarchar(450)");
@@ -262,12 +286,23 @@ namespace Ask_Clone.Migrations
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
                     b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
+                });
+
+            modelBuilder.Entity("Ask_Clone.Models.Entities.Follow", b =>
+                {
+                    b.HasOne("Ask_Clone.Models.Entities.ApplicationUser", "FollowedUser")
+                        .WithMany()
+                        .HasForeignKey("FollowedUserId");
+
+                    b.HasOne("Ask_Clone.Models.Entities.ApplicationUser", "FollowingUser")
+                        .WithMany()
+                        .HasForeignKey("FollowingUserId");
                 });
 
             modelBuilder.Entity("Ask_Clone.Models.Entities.Questions", b =>

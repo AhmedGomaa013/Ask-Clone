@@ -11,16 +11,8 @@ namespace Ask_Clone.Models.Entities
 {
     public class ApplicationUser : IdentityUser
     {
-        public ApplicationUser()
-        {
-            Following = new HashSet<ApplicationUser>();
-            Followers = new HashSet<ApplicationUser>();
-        }
 
         public string FirstName { get; set; }
         public string LastName { get; set; }
-
-        public HashSet<ApplicationUser> Following { get; set; }
-        public HashSet<ApplicationUser> Followers { get; set; }
     }
 }

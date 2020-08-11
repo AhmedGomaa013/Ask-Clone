@@ -62,47 +62,6 @@ namespace Ask_Clone.Models
             }
         }
 
-        public List<ApplicationUser> GetAllUsersByUser(string user)
-        {
-            try
-            {
-                return _authenticationContext.ApplicationUsers
-                    .Where(u => u.UserName.Contains(user) || u.FirstName.Contains(user) || u.LastName.Contains(user))
-                    .ToList();
-            }
-            catch(Exception)
-            {
-                return null;
-            }
-        }
-
-        public ApplicationUser GetFollowersByUser(string user)
-        {
-            try
-            {
-                return _authenticationContext.ApplicationUsers
-                    .Where(u => u.UserName == user)
-                    .Include(u => u.Followers).FirstOrDefault();
-            }
-            catch(Exception)
-            {
-                return null;
-            }
-        }
-
-        public ApplicationUser GetFollowingByUser(string user)
-        {
-            try
-            {
-                return _authenticationContext.ApplicationUsers
-                    .Where(u => u.UserName == user)
-                    .Include(u => u.Following).FirstOrDefault();
-            }
-            catch(Exception)
-            {
-                return null;
-            }
-        }
         public void AddQuestion(Questions question)
         {
             _authenticationContext.Add(question);

@@ -19,6 +19,28 @@ namespace Ask_Clone.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("Ask_Clone.Models.Entities.Follow", b =>
+                {
+                    b.Property<int>("FollowId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("FollowedUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FollowingUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("FollowId");
+
+                    b.HasIndex("FollowedUserId");
+
+                    b.HasIndex("FollowingUserId");
+
+                    b.ToTable("Follow");
+                });
+
             modelBuilder.Entity("Ask_Clone.Models.Entities.Questions", b =>
                 {
                     b.Property<int>("QuestionId")
@@ -261,23 +283,24 @@ namespace Ask_Clone.Migrations
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ApplicationUserId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("ApplicationUserId1");
-
                     b.HasDiscriminator().HasValue("ApplicationUser");
+                });
+
+            modelBuilder.Entity("Ask_Clone.Models.Entities.Follow", b =>
+                {
+                    b.HasOne("Ask_Clone.Models.Entities.ApplicationUser", "FollowedUser")
+                        .WithMany()
+                        .HasForeignKey("FollowedUserId");
+
+                    b.HasOne("Ask_Clone.Models.Entities.ApplicationUser", "FollowingUser")
+                        .WithMany()
+                        .HasForeignKey("FollowingUserId");
                 });
 
             modelBuilder.Entity("Ask_Clone.Models.Entities.Questions", b =>
@@ -340,17 +363,6 @@ namespace Ask_Clone.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Ask_Clone.Models.Entities.ApplicationUser", b =>
-                {
-                    b.HasOne("Ask_Clone.Models.Entities.ApplicationUser", null)
-                        .WithMany("Followers")
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("Ask_Clone.Models.Entities.ApplicationUser", null)
-                        .WithMany("Following")
-                        .HasForeignKey("ApplicationUserId1");
                 });
 #pragma warning restore 612, 618
         }

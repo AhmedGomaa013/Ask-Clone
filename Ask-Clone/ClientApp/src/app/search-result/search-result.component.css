@@ -34,3 +34,7 @@ a.color
     padding-right: 8px;
     margin-top: 10px;
 }
+
+.round {
+  border-radius: 5px;
+}

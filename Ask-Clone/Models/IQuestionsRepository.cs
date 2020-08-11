@@ -11,9 +11,6 @@ namespace Ask_Clone.Models
         public List<Questions> GetAllUnasweredQuestionsByUser(string user);
         public List<Questions> GetAllAnsweredQuestionsByUser(string user);
         public Questions GetQuestionByUserAndId(string user, int id);
-        public List<ApplicationUser> GetAllUsersByUser(string user);
-        public ApplicationUser GetFollowersByUser(string user);
-        public ApplicationUser GetFollowingByUser(string user);
         public void AddQuestion(Questions question);
         public void DeleteQuestion(Questions question);
 

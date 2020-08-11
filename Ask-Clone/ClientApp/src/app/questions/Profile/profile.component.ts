@@ -8,6 +8,9 @@ import { DataService } from 'src/app/shared/data.service';
 import { Question } from 'src/app/shared/question';
 import { AuthService } from '../../shared/auth.service';
 import { OpenDialogComponent } from 'src/app/shared/open-dialog/open-dialog.component';
+import { UserService } from 'src/app/shared/user-service';
+import { Title } from '@angular/platform-browser';
+import { FollowComponent } from '../../shared/follow/follow.component';
 
 @Component({
   selector: 'app-profile',
@@ -17,7 +20,8 @@ import { OpenDialogComponent } from 'src/app/shared/open-dialog/open-dialog.comp
 export class ProfileComponent{
   
   constructor(private dataService: DataService, private router: Router, private authService: AuthService,
-    private toastrService: ToastrService, private dialog: MatDialog, private route: ActivatedRoute)
+    private toastrService: ToastrService, private dialog: MatDialog, private route: ActivatedRoute,
+    private userService: UserService, private title: Title)
     {
       route.params.subscribe(params => {
         this.onCreate();
@@ -30,7 +34,65 @@ export class ProfileComponent{
   question:string='';
   questions:Question[]=[];
   anon:boolean=false;
+  isFollowed:boolean = false;
+  followersNumber:number=0;
+  followingNumber:number=0;
 
+  onFollowing()
+  {
+    const dialogRef = this.dialog.open(FollowComponent, {
+      data: { title: "Following", username: this.username }, panelClass: 'dialog', width: '72%'
+    });
+    
+    dialogRef.afterClosed().subscribe(res=>{
+      this.onCreate();
+    })
+  }
+
+  onFollowers()
+  {
+    const dialogRef = this.dialog.open(FollowComponent, {
+      data: { title: "Followers", username: this.username }, panelClass: 'dialog', width: '72%'
+    });
+
+    dialogRef.afterClosed().subscribe(res=>{
+      this.onCreate();
+    });
+  }
+
+  onFollow()
+  {
+    this.userService.follow(this.username).subscribe({
+      next: success => {
+        this.userService.followingFollowersNumber(this.username).subscribe({
+          next: (numbers: any) => {
+            this.followingNumber = numbers.following;
+            this.followersNumber = numbers.followers;
+          },
+          error: err => console.log(err)
+        });
+        this.isFollowed = true
+      },
+          error: err=> console.log(err)
+      });
+  }
+
+  onUnfollow()
+  {
+    this.userService.unfollow(this.username).subscribe({
+      next: succuss => {
+        this.userService.followingFollowersNumber(this.username).subscribe({
+          next: (numbers: any) => {
+            this.followingNumber = numbers.following;
+            this.followersNumber = numbers.followers;
+          },
+          error: err => console.log(err)
+        });
+        this.isFollowed = false
+      },
+          error: err => console.log(err)
+      });
+  }
   
   onAsk()
   {
@@ -100,11 +162,35 @@ export class ProfileComponent{
   {
     this.dataService.sort(this.questions);
   }
+  
   onCreate()
   {
     this.username = this.router.url.slice(6);
     if (!this.username.length) this.router.navigateByUrl('/');
-    this.dataService.unauthorizedGet(this.username).subscribe({
+
+    this.title.setTitle(this.username);
+
+    if (this.authService.isLoggedIn && this.username != this.authService.username)
+    {
+      this.userService.isFollowed(this.username).subscribe({
+        next: success => {
+          this.isFollowed = success;
+        },
+        error: err => {
+          console.log(err);
+        }
+      });
+    }
+
+    this.userService.followingFollowersNumber(this.username).subscribe({
+      next:(numbers:any)=>{
+        this.followingNumber = numbers.following;
+        this.followersNumber = numbers.followers;
+      },
+      error:err=>console.log(err)
+    });
+
+    this.dataService.getAnsweredQuestions(this.username).subscribe({
       next: questions => {
         this.showComponent = true;
         this.questions = questions;

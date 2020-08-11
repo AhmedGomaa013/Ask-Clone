@@ -1,26 +1,32 @@
 <div *ngIf="showComponent">
-    <div class="container my-5 div-panel">
+    <div class="round container my-5 div-panel">
       <div class="row justify-content-center">
-          <img src="assets/svg/person-24px.svg"/>
-            <h3 class="mt-2">{{username}}</h3>
+          <!--<img src="assets/svg/person-24px.svg"/>-->
+          <i class="fa fa-3x fa-user mt-2 mr-1"></i>
+            <h3 class="mt-4">{{username}}</h3>
         </div>
         
         <div class="row">
-        <div class="col-sm-12 div-flex">
-          <div>
-            <h4 class="text-center">100</h4>
-            <h6 class="text-center">Following</h6>
-          </div>
+        <div class="col-sm-12 div-flex mb-3">
+          <a role="button" (click)="onFollowing()">
+            <h4 class="text-center no-space anon-unchecked">{{followingNumber}}</h4>
+            <h6 class="text-center no-space anon-checked">Following</h6>
+          </a>
 
           <div>
-            <h5 class="text-center">{{questions.length}}</h5>
-            <h6 class="text-center">{{questions.length==1?'Answer':'Answers'}}</h6>  
+            <h4 class="text-center no-space">{{questions.length}}</h4>
+            <h6 class="text-center no-space anon-checked">{{questions.length==1?'Answer':'Answers'}}</h6>  
           </div>
-          
-          <div>
-            <h5 class="text-center">100</h5>
-            <h6 class="text-center">Followers</h6>
-          </div>
+        
+          <a role="button">
+            <h4 class="text-center no-space anon-unchecked" (click)="onFollowers()">{{followersNumber}}</h4>
+            <h6 class="text-center no-space anon-checked">Followers</h6>
+          </a>
+        </div>
+        
+        <div class="col-md-12 mt-2 mb-2" *ngIf="(username != authService.username) && (authService.isLoggedIn)">
+            <button *ngIf="!isFollowed" class="btn btn-block follow" (click)="onFollow()">Follow</button>
+            <button *ngIf="isFollowed" class="btn btn-block unfollow" (click)="onUnfollow()">Unfollow</button>
         </div>
       </div>
       
@@ -44,14 +50,17 @@
         </form>
 
       </div>
+      
     </div>
 
     <div *ngIf="questions.length>0">
-        <div class="container div-panel" *ngFor="let question of questions">
-          <a *ngIf="authService.isLoggedIn" class="delete-a mt-2" role="button" (click)="onConfirmDeletion(question)"><i class="fa fa-close"></i></a>
+        <div class="round container div-panel pt-1 mt-2" *ngFor="let question of questions">
+          <a *ngIf="authService.isLoggedIn && username==authService.username" class="delete-a float-right" role="button" (click)="onConfirmDeletion(question)">
+          <i class="fa fa-close"></i>
+          </a>
             
           <div class="flex-col">
-              <div class="fa q-font no-space">{{question.question}}</div>
+              <div class=" fa q-font no-space">{{question.question}}</div>
               <div>
                 <a href="user/{{question.questionFrom}}" *ngIf="question.questionFrom" class="fa fa-lg div-question-from no-space">{{question.questionFrom}}</a>
                 <h6 *ngIf="!question.questionFrom" class="fa fa-lg div-question-from no-space">Anon</h6>
@@ -69,6 +78,7 @@
             
             <div class="fa a-font mt-2">{{question.answer}}</div>
         </div>
+      <div class="mt-2 pt-2"></div>
     </div>
     
 <div *ngIf="questions.length<1">
@@ -78,5 +88,5 @@
 
 <div *ngIf="showError">
     <h3 class="text-md-center mt-3">Sorry, this page isn't available.</h3>
-    <p class="text-center mt-4">The link you followed may be broken, or the page may have been removed.<a [routerLink]="['/']">Go back to Home</a></p>>
+    <p class="text-center mt-4">The link you followed may be broken, or the page may have been removed. <a [routerLink]="['/']">Go back to Home!</a></p>>
 </div>

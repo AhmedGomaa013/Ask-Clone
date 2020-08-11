@@ -1,6 +1,6 @@
-export interface SearchResult
-{
-    firstName:string,
-    lastName:string,
-    userName:string
+export interface SearchResult {
+  firstName: string,
+  lastName: string,
+  userName: string,
+  isFollowed: boolean
 }

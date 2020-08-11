@@ -41,8 +41,8 @@ namespace Ask_Clone.Migrations
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
                     Discriminator = table.Column<string>(nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(150)", nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(150)", nullable: true)
+                    FirstName = table.Column<string>(nullable: true),
+                    LastName = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -156,18 +156,42 @@ namespace Ask_Clone.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Follow",
+                columns: table => new
+                {
+                    FollowId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FollowedUserId = table.Column<string>(nullable: true),
+                    FollowingUserId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Follow", x => x.FollowId);
+                    table.ForeignKey(
+                        name: "FK_Follow_AspNetUsers_FollowedUserId",
+                        column: x => x.FollowedUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Follow_AspNetUsers_FollowingUserId",
+                        column: x => x.FollowingUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Questions",
                 columns: table => new
                 {
                     QuestionId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Question = table.Column<string>(nullable: true),
-                    Answer = table.Column<string>(nullable: true),
+                    Question = table.Column<string>(maxLength: 300, nullable: true),
+                    Answer = table.Column<string>(maxLength: 3000, nullable: true),
                     IsAnswered = table.Column<bool>(nullable: false),
                     QuestionFromId = table.Column<string>(nullable: true),
                     QuestionToId = table.Column<string>(nullable: true),
-                    QuestionFromUserame = table.Column<string>(nullable: true),
-                    QuestionToUsername = table.Column<string>(nullable: true),
                     Time = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
@@ -227,6 +251,16 @@ namespace Ask_Clone.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Follow_FollowedUserId",
+                table: "Follow",
+                column: "FollowedUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Follow_FollowingUserId",
+                table: "Follow",
+                column: "FollowingUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Questions_QuestionFromId",
                 table: "Questions",
                 column: "QuestionFromId");
@@ -253,6 +287,9 @@ namespace Ask_Clone.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Follow");
 
             migrationBuilder.DropTable(
                 name: "Questions");

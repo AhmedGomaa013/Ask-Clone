@@ -2,7 +2,7 @@
 <div mat-dialog-content>
     <p class="text-center">{{data.content}}</p>
     <textarea class="form-control mt-2" rows="3" placeholder="Write your answer!" name="answer"
-    [(ngModel)]="answer" cols="150px" *ngIf="!data.delete" maxlength="3000"></textarea>
+    [(ngModel)]="answer" cols="150" *ngIf="!data.delete" maxlength="3000"></textarea>
 </div>
 <div mat-dialog-actions class="buttons-flex">
     <button class="btn btn-danger ml-2" (click)="onYesClick()" *ngIf="data.delete">Yes</button>

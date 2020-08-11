@@ -1,7 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
 
 /* Provide sufficient contrast against white background */
-body.body-bg{
+
+.dialog .mat-dialog-container {
+  padding: 10px !important;
+  margin: 10px !important;
+  background-color: #eedad1;
+  overflow-x:hidden;
+  height:auto;
+  min-height:300px;
+}
+
+.body-bg{
   background-color: #eedad1;
 }
 

@@ -41,6 +41,7 @@ namespace Ask_Clone
 
 
             services.AddScoped<IQuestionsRepository, QuestionsRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddAutoMapper(Assembly.GetEntryAssembly());
             services.AddControllersWithViews().AddNewtonsoftJson(opt =>
