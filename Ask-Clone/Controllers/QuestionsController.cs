@@ -28,7 +28,7 @@ namespace Ask_Clone.Controllers
 
         [HttpGet("{user}")]
         //Get => api/Questions/user
-        public async Task<ActionResult> Get(string user)
+        public async Task<ActionResult> GetAnsweredQuestions(string user)
         {
             try
             {
@@ -65,7 +65,7 @@ namespace Ask_Clone.Controllers
         [Authorize]
         [HttpGet]
         //Get => api/Questions
-        public ActionResult Get()
+        public ActionResult GetUnansweredQuestions()
         {
             try
             {

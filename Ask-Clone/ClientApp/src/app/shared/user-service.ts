@@ -5,57 +5,54 @@ import { Router } from "@angular/router";
 import { RegisterUser } from "./register-user";
 import { SearchResult } from "./search-result";
 import { Observable } from "rxjs";
+import { Question } from "./question";
 
 @Injectable()
 export class UserService {
-    constructor(private http:HttpClient, private router:Router) {}
+  constructor(private http: HttpClient, private router: Router) { }
 
-    searchResult:SearchResult[]=[];
-    
-    private readonly baseUrl:string = "api/User/";
-    
-    login(user:LoginUser)
-    {
-        return this.http.post(this.baseUrl+'login',user);
-    }
+  searchResult: SearchResult[] = [];
 
-    signup(user:RegisterUser)
-    {
-        return this.http.post(this.baseUrl+'Register',user);
-    }
+  private readonly baseUrl: string = "api/User/";
 
-    search(searchValue: string): Observable<SearchResult[]>
-    {
-        return this.http.get<SearchResult[]>(this.baseUrl+'search', { params: { username: searchValue } });
-    }
+  login(user: LoginUser) {
+    return this.http.post(this.baseUrl + 'login', user);
+  }
 
-    follow(username:string)
-    {
-        return this.http.get(this.baseUrl+'follow/'+username);
-    }
+  signup(user: RegisterUser) {
+    return this.http.post(this.baseUrl + 'Register', user);
+  }
 
-    unfollow(username:string)
-    {
-        return this.http.get(this.baseUrl+'unfollow/'+username);
-    }
+  search(searchValue: string): Observable<SearchResult[]> {
+    return this.http.get<SearchResult[]>(this.baseUrl + 'search', { params: { username: searchValue } });
+  }
 
-    isFollowed(username:string):Observable<boolean>
-    {
-        return this.http.get<boolean>(this.baseUrl+'isfollowing/'+username);
-    }
+  follow(username: string) {
+    return this.http.get(this.baseUrl + 'follow/' + username);
+  }
 
-    getFollowers(username:string)
-    {
-        return this.http.get(this.baseUrl+'followers/'+username);
-    }
+  unfollow(username: string) {
+    return this.http.get(this.baseUrl + 'unfollow/' + username);
+  }
 
-    getFollowing(username:string)
-    {
-        return this.http.get(this.baseUrl+'following/'+username);
-    }
+  isFollowed(username: string): Observable<boolean> {
+    return this.http.get<boolean>(this.baseUrl + 'isfollowing/' + username);
+  }
 
-    followingFollowersNumber(username:string)
-    {
-        return this.http.get(this.baseUrl+'FollowingFollowersNumber/'+username);
-    }
+  getFollowers(username: string) {
+    return this.http.get(this.baseUrl + 'followers/' + username);
+  }
+
+  getFollowing(username: string) {
+    return this.http.get(this.baseUrl + 'following/' + username);
+  }
+
+  followingFollowersNumber(username: string) {
+    return this.http.get(this.baseUrl + 'FollowingFollowersNumber/' + username);
+  }
+
+  getHomeQuestions(): Observable<Question[]>
+  {
+    return this.http.get<Question[]>(this.baseUrl + 'Home/Questions');
+  }
 }

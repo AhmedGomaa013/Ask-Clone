@@ -21,14 +21,14 @@ namespace Ask_Clone.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IQuestionsRepository _questionsRepository;
         private readonly IUserRepository _userRepository;
 
-        public UserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
+        public UserController(UserManager<ApplicationUser> userManager,IQuestionsRepository questionsRepository,
             IUserRepository userRepository)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
+            _questionsRepository = questionsRepository;
             _userRepository = userRepository;
         }
         
@@ -233,7 +233,7 @@ namespace Ask_Clone.Controllers
         [HttpGet]
         [Route("Followers/{username}")]
         //Get => api/User/Followers/username
-        public async Task<ActionResult> Followers(string username)
+        public async Task<ActionResult> GetFollowers(string username)
         {
             try
             {
@@ -276,7 +276,7 @@ namespace Ask_Clone.Controllers
         [HttpGet]
         [Route("Following/{username}")]
         //Get => api/User/Following
-        public async Task<ActionResult> Following(string username)
+        public async Task<ActionResult> GetFollowing(string username)
         {
             try
             {
@@ -319,6 +319,7 @@ namespace Ask_Clone.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet]
         [Route("IsFollowing/{username}")]
         //Get => api/User/IsFollowing/username
@@ -356,7 +357,7 @@ namespace Ask_Clone.Controllers
         [HttpGet]
         [Route("FollowingFollowersNumber/{username}")]
         //Get => api/User/FollowingFollowersNumber/username
-        public async Task<ActionResult> FollowingFollowersNumber(string username)
+        public async Task<ActionResult> GetFollowingFollowersNumber(string username)
         {
             var user = await _userManager.FindByNameAsync(username);
             if (user == null) return StatusCode(StatusCodes.Status404NotFound);
@@ -365,6 +366,41 @@ namespace Ask_Clone.Controllers
             var following = _userRepository.GetFollowing(user);
 
             return Ok(new { followers = followers.Count, following = following.Count });
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("Home/Questions")]
+        //Get => api/User/Home/Questions
+        public async Task<ActionResult> GetHomeQuestions()
+        {
+            var username = User.Claims.First(o => o.Type == "UserName").Value;
+            var user = await _userManager.FindByNameAsync(username);
+            var following = _userRepository.GetFollowing(user);
+            following.Add(user);
+
+            List<QuestionsViewModel> returnQuestions = new List<QuestionsViewModel>();
+            foreach(var item in following)
+            {
+                var questions = _questionsRepository.GetAllAnsweredQuestionsByUser(item.UserName);
+                foreach(var question in questions)
+                {
+                    var returnQuestion = new QuestionsViewModel()
+                    {
+                        QuestionId = question.QuestionId,
+                        Answer = question.Answer,
+                        Question = question.Question,
+                        QuestionTo = question.QuestionTo.UserName,
+                        Time = question.Time,
+                        IsAnswered = question.IsAnswered
+                    };
+
+                    if (question.QuestionFrom != null) returnQuestion.QuestionFrom = question.QuestionFrom.UserName;
+                    returnQuestions.Add(returnQuestion);
+                }
+            }
+
+            return Ok(returnQuestions);
         }
     }
 }

@@ -1,0 +1,29 @@
+<div *ngIf="showComponent" class="mt-5 pt-3 offset-md-2 col-md-8">
+  <div *ngIf="questions.length>0">
+    <div class="round container div-panel pt-1 mt-2" *ngFor="let question of questions">
+      <div class="flex-col">
+        <div class=" fa q-font no-space">{{question.question}}</div>
+        <div>
+          <a href="user/{{question.questionFrom}}" *ngIf="question.questionFrom" class="fa fa-lg div-question-from no-space">{{question.questionFrom}}</a>
+          <h6 *ngIf="!question.questionFrom" class="fa fa-lg div-question-from no-space">Anon</h6>
+        </div>
+      </div>
+
+
+      <div class="flex ml-2">
+        <img src="assets/svg/person-24px.svg" height="40" width="40" />
+        <div class="flex-col">
+          <h6 class="fa user-font no-space">{{question.questionTo}}</h6>
+          <span class="fa ml-2 no-space">{{ question.time | timeAgo}}</span>
+        </div>
+      </div>
+
+      <div class="fa a-font mt-2">{{question.answer}}</div>
+    </div>
+    <div class="mt-2 pt-2"></div>
+  </div>
+
+  <div *ngIf="questions.length<1">
+    <h3 class="text-md-center mt-3 ">There's no answers yet</h3>
+  </div>
+</div>
