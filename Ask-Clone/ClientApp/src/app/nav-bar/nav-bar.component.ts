@@ -14,7 +14,11 @@ export class NavBarComponent{
 
   searchValue:string = '';
 
-  onTest(event)
+  myFunction() {
+    document.getElementById("myDropdown").classList.toggle("show");
+  }
+
+  onKeyPressed(event)
   {
     if(event.keyCode == 13)
     {

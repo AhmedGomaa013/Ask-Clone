@@ -6,6 +6,7 @@ import { RegisterUser } from "./register-user";
 import { SearchResult } from "./search-result";
 import { Observable } from "rxjs";
 import { Question } from "./question";
+import { Passwords } from "./passwordsChange";
 
 @Injectable()
 export class UserService {
@@ -23,6 +24,10 @@ export class UserService {
     return this.http.post(this.baseUrl + 'Register', user);
   }
 
+  changePassword(passwords:Passwords){
+    return this.http.post(this.baseUrl+'ChangePassword',
+    {currentPassword:passwords.currentPassword,newPassword:passwords.newPassword});
+  }
   search(searchValue: string): Observable<SearchResult[]> {
     return this.http.get<SearchResult[]>(this.baseUrl + 'search', { params: { username: searchValue } });
   }

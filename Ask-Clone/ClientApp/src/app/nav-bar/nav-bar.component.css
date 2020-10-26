@@ -34,6 +34,44 @@ div.title-color
 {
     display: flex;
     justify-content: space-between;
-    
 }
 
+#settings{
+    color: #eedad1;
+    background-color: #383e56;
+    border: none;
+}
+
+#settings:active{
+    border: 1px solid #383e56;
+    border: #383e56;
+    color:#ddd;
+}
+
+.dropdown-content {
+    display: none;
+    color: #eedad1;
+    background-color: #383e56;
+    position: absolute;
+    border-radius: 3px;
+}
+  
+
+.dropdown-content a {
+    padding: 5px;
+    margin: 5px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    color: #eedad1;
+}
+
+.dropdown-content a:hover{
+    background-color: #ddd;
+    color: black;
+    border-radius: 3px;
+}
+  
+.show{
+    display:block;
+}

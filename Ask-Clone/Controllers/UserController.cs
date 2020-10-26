@@ -112,6 +112,29 @@ namespace Ask_Clone.Controllers
         }
 
         [Authorize]
+        [HttpPost]
+        [Route("ChangePassword")]
+        //Post => api/User/ChangePassword
+
+        public async Task<ActionResult> ChangePassword(PasswordsViewModel model)
+        {
+            try
+            {
+                var username = User.Claims.First(o => o.Type == "UserName").Value;
+                var user = await _userManager.FindByNameAsync(username);
+                if (user == null) return StatusCode(StatusCodes.Status404NotFound);
+
+                var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to get user data");
+            }
+        }
+
+        [Authorize]
         [HttpGet]
         [Route("Search")]
         //Get => api/User/Search?username=

@@ -13,21 +13,29 @@
     </a>
   </div>
 
-  
-   
-  
   <div class="buttons mt-3">
-    <a [routerLink]="['login']" class="btn btn-sm btn-link a-fg font-weight-bold a-bg" *ngIf="!auth.isLoggedIn">Log In</a>
+    <a [routerLink]="['login']" style="text-decoration:none;" class="btn btn-sm btn-link a-fg font-weight-bold a-bg" *ngIf="!auth.isLoggedIn">Log In</a>
     <a [routerLink]="['signup']" class="btn btn-sm font-weight-bold a-fg a-bg ml-1" *ngIf="!auth.isLoggedIn">Sign Up</a>
 
-    <div class="form-group flex">
-      <input class=" form-control" name="searchValue" (keydown)="onTest($event)" *ngIf="auth.isLoggedIn" [(ngModel)]="searchValue"
+    <div class="" style="position: relative; display: inline-block;">
+      <div class="form-group flex">
+        <input class="form-control" name="searchValue" (keydown)="onKeyPressed($event)" *ngIf="auth.isLoggedIn" [(ngModel)]="searchValue"
              type="text" placeholder="Search" aria-label="Search">
 
-        <button style="width: 90px;" class="btn btn-sm font-weight-bold button-fg button-bg ml-1" *ngIf="auth.isLoggedIn" (click)="onLogout()">
-          Log out
-        </button>
+        <div class="ml-2 mt-1" *ngIf="auth.isLoggedIn" (click)="myFunction()">
+            <a type="button" role="button" id="settings">
+              <i class="fa fa-cog fa-2x"></i>
+            </a>
+        </div>
+
       </div>
+
+      <div id="myDropdown" class="ml-2 pr-2 dropdown-content" style="width: 100%;">
+        <a role="button" [routerLink]="['changePassword']">Change Password</a>
+        <a  role="button" (click)="onLogout()">Log Out</a>
+      </div>
+    </div>
+
   </div>
 </nav>
   

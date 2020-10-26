@@ -34,8 +34,8 @@ export class SignupComponent implements OnInit {
     {
       this.errorMessage = "Username must be at least 5 characters and at most 25 characters";
     }
-    else if((this.user.firstName == '') && (this.user.lastName == '') && (this.user.username == '') && 
-    (this.user.password == '') && (this.user.confirmPassword == ''))
+    else if((this.user.firstName == '') || (this.user.lastName == '') || (this.user.username == '') ||
+    (this.user.password == '') || (this.user.confirmPassword == ''))
     {
       this.errorMessage = 'Make sure all the fields aren\'t empty';
     }
@@ -45,7 +45,7 @@ export class SignupComponent implements OnInit {
       this.userService.signup(this.user).subscribe(
         (response: any) => {
           if (response.succeeded) {
-            this.toastrService.success("New User Created", "Registration Successful");
+            this.toastrService.success("New User Created", "Successful Registration");
             this.errorMessage = "";
             this.router.navigateByUrl('login');
           }

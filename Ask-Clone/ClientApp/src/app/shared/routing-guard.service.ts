@@ -16,7 +16,7 @@ export class RoutingGuard implements CanActivate{
             return false;
         }
 
-        if(!this.authService.isLoggedIn && (route.url[0].path == 'inbox'))
+        if(!this.authService.isLoggedIn && ((route.url[0].path == 'inbox')||route.url[0].path == 'changePassword'))
         {
             this.router.navigateByUrl('login');
             return false;
