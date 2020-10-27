@@ -17,6 +17,7 @@ using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using AutoMapper;
+using Ask_Clone.Services;
 
 namespace Ask_Clone
 {
@@ -32,6 +33,12 @@ namespace Ask_Clone
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var jwtSettings = new JWTSettings();
+            Configuration.Bind("jwtSettings", jwtSettings);
+            
+            services.AddSingleton(jwtSettings);
+            services.AddTransient<JWTCreator>();
+
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AuthenticationContext>()
                 .AddDefaultTokenProviders();

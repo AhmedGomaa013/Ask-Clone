@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Ask_Clone.Models;
 using Ask_Clone.Models.Entities;
+using Ask_Clone.Services;
 using Ask_Clone.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -23,13 +24,15 @@ namespace Ask_Clone.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IQuestionsRepository _questionsRepository;
         private readonly IUserRepository _userRepository;
+        private readonly JWTCreator _jwtCreator;
 
         public UserController(UserManager<ApplicationUser> userManager,IQuestionsRepository questionsRepository,
-            IUserRepository userRepository)
+            IUserRepository userRepository,JWTCreator jwtCreator)
         {
             _userManager = userManager;
             _questionsRepository = questionsRepository;
             _userRepository = userRepository;
+            _jwtCreator = jwtCreator;
         }
         
         [HttpPost]
@@ -78,20 +81,7 @@ namespace Ask_Clone.Controllers
                     var key = Environment.GetEnvironmentVariable("Token");
                     if ((user != null) && (await _userManager.CheckPasswordAsync(user, model.Password)))
                     {
-                        var tokenDecriptor = new SecurityTokenDescriptor
-                        {
-                            Subject = new ClaimsIdentity(new Claim[]
-                            {
-                            new Claim("UserName", user.UserName)
-                            }),
-                            Expires = DateTime.Now.AddHours(2),
-                            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-                            SecurityAlgorithms.HmacSha256Signature)
-                        };
-
-                        var tokenHandler = new JwtSecurityTokenHandler();
-                        var securityToken = tokenHandler.CreateToken(tokenDecriptor);
-                        var token = tokenHandler.WriteToken(securityToken);
+                        var token = _jwtCreator.GenerateToken(user.UserName);
 
                         return Ok(new { token });
                     }
