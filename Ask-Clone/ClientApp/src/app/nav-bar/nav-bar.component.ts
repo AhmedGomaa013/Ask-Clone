@@ -26,7 +26,6 @@ export class NavBarComponent{
     }
   }
   onLogout(){
-    this.auth.token = '';
     this.auth.username = '';
     this.searchValue = '';
     this.auth.clearCreds();

@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ask_Clone.Services
+namespace Ask_Clone.Jwt.Services
 {
     public class JWTCreator
     {
@@ -27,7 +27,7 @@ namespace Ask_Clone.Services
                             {
                             new Claim("UserName", username)
                             }),
-                Expires = DateTime.Now.AddHours(_settings.Expire),
+                Expires = DateTime.Now.AddMinutes(_settings.Expire),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                             SecurityAlgorithms.HmacSha256Signature)
             };

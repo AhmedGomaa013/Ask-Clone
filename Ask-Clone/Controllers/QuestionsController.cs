@@ -14,6 +14,7 @@ namespace Ask_Clone.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class QuestionsController: Controller
     {
         private readonly IQuestionsRepository _questionsRepository;
@@ -26,6 +27,7 @@ namespace Ask_Clone.Controllers
             _userManager = userManager;
         }
 
+        [AllowAnonymous]
         [HttpGet("{user}")]
         //Get => api/Questions/user
         public async Task<ActionResult> GetAnsweredQuestions(string user)
@@ -62,7 +64,6 @@ namespace Ask_Clone.Controllers
             }
         }
 
-        [Authorize]
         [HttpGet]
         //Get => api/Questions
         public ActionResult GetUnansweredQuestions()
@@ -96,6 +97,7 @@ namespace Ask_Clone.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("{user}")]
         //Post => api/Questions/user
         public async Task<ActionResult> Post(QuestionsViewModel model,string user)
@@ -145,7 +147,6 @@ namespace Ask_Clone.Controllers
             }
         }
 
-        [Authorize]
         [HttpPut("{id}")]
         //Put => api/Questions/id
         public ActionResult Put(QuestionsViewModel model,int id)
@@ -185,7 +186,6 @@ namespace Ask_Clone.Controllers
             }
         }
 
-        [Authorize]
         [HttpDelete("{id}")]
         //Delete => api/Questions/id
         public ActionResult Delete(int id)

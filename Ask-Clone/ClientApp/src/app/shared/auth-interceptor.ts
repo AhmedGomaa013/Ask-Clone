@@ -13,11 +13,8 @@ export class AuthInterceptor implements HttpInterceptor {
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         if(this.auth.isLoggedIn)
         {
-            const clonereq = req.clone({
-                headers: req.headers.set('Authorization', 'Bearer ' + this.auth.token)
-            });
 
-            return next.handle(clonereq).pipe(
+            return next.handle(req).pipe(
                 tap(
                     success =>{},
                     err =>{
@@ -35,5 +32,9 @@ export class AuthInterceptor implements HttpInterceptor {
             return next.handle(req.clone());
         }
     }
+
+  checkRefreshToken(): boolean {
+    return true;
+  }
 
 }

@@ -33,9 +33,9 @@ export class LoginComponent implements OnInit {
     this.connectionMade = true;
     this.userService.login(this.user).subscribe(
       (res:any)=>{
-        this.auth.token = res.token;
-        this.auth.getUsernameFromToken();
-        this.auth.isLoggedInFunc();
+        
+        this.auth.username = this.user.username;
+        this.auth.isLoggedIn = true;
         this.toastr.success("Welcome, " + this.auth.username);
         this.router.navigate(['inbox', this.auth.username]);
       },

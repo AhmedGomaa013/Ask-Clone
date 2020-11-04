@@ -4,14 +4,16 @@ using Ask_Clone.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Ask_Clone.Migrations
 {
     [DbContext(typeof(AuthenticationContext))]
-    partial class AuthenticationContextModelSnapshot : ModelSnapshot
+    [Migration("20201028213551_AddingTokenAndRefreshToken")]
+    partial class AddingTokenAndRefreshToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -290,6 +292,9 @@ namespace Ask_Clone.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");

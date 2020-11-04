@@ -17,7 +17,9 @@ using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using AutoMapper;
-using Ask_Clone.Services;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Ask_Clone.Jwt.Services;
 
 namespace Ask_Clone
 {
@@ -44,7 +46,7 @@ namespace Ask_Clone
                 .AddDefaultTokenProviders();
 
             services.AddDbContext<AuthenticationContext>(options =>
-           options.UseSqlServer(Configuration.GetConnectionString("IdentityConnection")));
+            options.UseSqlServer(Configuration.GetConnectionString("IdentityConnection")));
 
 
             services.AddScoped<IQuestionsRepository, QuestionsRepository>();
@@ -61,7 +63,6 @@ namespace Ask_Clone
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-
             }).AddJwtBearer(opt => {
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -69,11 +70,23 @@ namespace Ask_Clone
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero,
+                    ValidateLifetime = true
+                };
+                opt.SaveToken = true;
+                opt.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        if (context.Request.Cookies.ContainsKey("Token"))
+                        {
+                            context.Token = context.Request.Cookies["Token"];
+                        }
+                        return Task.CompletedTask;
+                    }
                 };
             });
 
-            
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {

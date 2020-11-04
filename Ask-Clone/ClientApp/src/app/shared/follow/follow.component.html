@@ -10,9 +10,11 @@
             <div class="no-space mr-4">@{{user.userName}}</div>
           </div>
         </a>
-        <div class="mt-2" *ngIf="user.userName != auth.username">
-          <button *ngIf="!user.isFollowed" (click)="onFollow(user)" class="btn btn-default">Follow</button>
-          <button *ngIf="user.isFollowed" (click)="onUnfollow(user)" class="btn btn-default">Unfollow</button>
+        <div *ngIf="auth.isLoggedIn">
+          <div class="mt-2" *ngIf="user.userName != auth.username">
+            <button *ngIf="!user.isFollowed" (click)="onFollow(user)" class="btn btn-default">Follow</button>
+            <button *ngIf="user.isFollowed" (click)="onUnfollow(user)" class="btn btn-default">Unfollow</button>
+          </div>
         </div>
       </div>
     </div>
