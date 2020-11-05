@@ -9,10 +9,9 @@ import { Router } from '@angular/router';
 })
 export class AppComponent implements OnInit {
   constructor(private authService: AuthService) { }
+
   ngOnInit(): void {
-    const cookies = document.cookie;
-    if (cookies === "UNL=LIT") {
-      this.authService.isLoggedIn = true;
-    }
+    this.authService.validateLogin();
   }
+
 }

@@ -16,21 +16,32 @@ export class UserService {
 
   private readonly baseUrl: string = "api/User/";
 
+  signup(user: RegisterUser) {
+    return this.http.post(this.baseUrl + 'Register', user);
+  }
+
   login(user: LoginUser) {
     return this.http.post(this.baseUrl + 'login', user);
   }
 
-  signup(user: RegisterUser) {
-    return this.http.post(this.baseUrl + 'Register', user);
+  logout() {
+    return this.http.get(this.baseUrl + "Logout");
   }
 
   changePassword(passwords:Passwords){
     return this.http.post(this.baseUrl+'ChangePassword',
     {currentPassword:passwords.currentPassword,newPassword:passwords.newPassword});
   }
+
   search(searchValue: string): Observable<SearchResult[]> {
     return this.http.get<SearchResult[]>(this.baseUrl + 'search', { params: { username: searchValue } });
   }
+
+  getHomeQuestions(): Observable<Question[]> {
+    return this.http.get<Question[]>(this.baseUrl + 'Home/Questions');
+  }
+
+
 
   follow(username: string) {
     return this.http.get(this.baseUrl + 'follow/' + username);
@@ -56,8 +67,4 @@ export class UserService {
     return this.http.get(this.baseUrl + 'FollowingFollowersNumber/' + username);
   }
 
-  getHomeQuestions(): Observable<Question[]>
-  {
-    return this.http.get<Question[]>(this.baseUrl + 'Home/Questions');
-  }
 }

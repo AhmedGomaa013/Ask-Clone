@@ -14,8 +14,8 @@ export class NavBarComponent{
 
   searchValue:string = '';
 
-  myFunction() {
-    document.getElementById("myDropdown").classList.toggle("show");
+  onToggleDropDownMenu() {
+    document.getElementById("Dropdown").classList.toggle("show");
   }
 
   onKeyPressed(event)
@@ -25,10 +25,19 @@ export class NavBarComponent{
       this.router.navigate(['search'], { queryParams: { username: this.searchValue } });
     }
   }
-  onLogout(){
-    this.auth.username = '';
-    this.searchValue = '';
-    this.auth.clearCreds();
-    this.router.navigateByUrl('login');
+
+  onLogout() {
+
+    this.userService.logout().subscribe(
+      {
+        next: success => {
+          this.searchValue = '';
+          this.auth.clearCreds();
+          this.router.navigateByUrl('login');
+        },
+        error: err => {
+          console.log(err);
+        }
+      });
   }
 }

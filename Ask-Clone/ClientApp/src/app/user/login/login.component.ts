@@ -35,7 +35,7 @@ export class LoginComponent implements OnInit {
       (res:any)=>{
         
         this.auth.username = this.user.username;
-        this.auth.isLoggedIn = true;
+        this.auth.validateLogin();
         this.toastr.success("Welcome, " + this.auth.username);
         this.router.navigate(['inbox', this.auth.username]);
       },

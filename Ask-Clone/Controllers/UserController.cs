@@ -108,6 +108,76 @@ namespace Ask_Clone.Controllers
             }
         }
 
+        [HttpGet("RefreshToken")]
+        //Get => api/User/RefreshToken
+        public async Task<ActionResult> RefreshToken()
+        {
+            try
+            {
+                string username = User.Claims.First(o => o.Type == "UserName").Value;
+                var user = await _userManager.FindByNameAsync(username);
+                if (user == null) return StatusCode(StatusCodes.Status401Unauthorized);
+
+                var refreshToken = Request.Cookies["RefreshToken"];
+                if((!string.IsNullOrEmpty(refreshToken)) && (user.RefreshToken == refreshToken))
+                {
+                    var token = _jwtCreator.GenerateToken(username);
+                    Response.Cookies.Append("Token", token);
+
+                    return Ok();
+                }
+                else
+                {
+                    user.RefreshToken = "";
+                    await _userManager.UpdateAsync(user);
+                    
+                    Response.Cookies.Delete("Token");
+                    Response.Cookies.Delete("RefreshToken");
+                    Response.Cookies.Delete("UNL");
+
+                    return StatusCode(StatusCodes.Status401Unauthorized);
+                }
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to get user data");
+            }
+        }
+        
+        [HttpGet("Logout")]
+        //Get => api/User/Logout
+        public async Task<ActionResult> Logout()
+        {
+            try
+            {
+                string username = User.Claims.First(o => o.Type == "UserName").Value;
+                var user = await _userManager.FindByNameAsync(username);
+                if (user == null) return NotFound();
+
+                user.RefreshToken = "";
+
+                var result = await _userManager.UpdateAsync(user);
+                if(result.Succeeded)
+                {
+                    Response.Cookies.Delete("Token");
+                    Response.Cookies.Delete("RefreshToken");
+                    Response.Cookies.Delete("UNL");
+
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to get user data");
+            }
+        }
+
         [HttpPost("ChangePassword")]
         //Post => api/User/ChangePassword
         public async Task<ActionResult> ChangePassword(PasswordsViewModel model)

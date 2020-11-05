@@ -13,13 +13,23 @@ export class AuthService {
     return localStorage.getItem('username');
   }
   set username(value: string) {
-    localStorage.setItem('username', value);
+    if (value === '')
+      localStorage.removeItem("username");
+    else
+      localStorage.setItem('username', value);
   }
 
   clearCreds()
   {
-    localStorage.clear();
     this.username = '';
     this.isLoggedIn = false;
   }
+
+  validateLogin() {
+    const cookies = document.cookie;
+    if (cookies === "UNL=LIT") {
+      this.isLoggedIn = true;
+    }
+  }
+
 }

@@ -22,7 +22,7 @@
         <input class="form-control" name="searchValue" (keydown)="onKeyPressed($event)" *ngIf="auth.isLoggedIn" [(ngModel)]="searchValue"
              type="text" placeholder="Search" aria-label="Search">
 
-        <div class="ml-2 mt-1" *ngIf="auth.isLoggedIn" (click)="myFunction()">
+        <div class="ml-2 mt-1" *ngIf="auth.isLoggedIn" (click)="onToggleDropDownMenu()">
             <a type="button" role="button" id="settings">
               <i class="fa fa-cog fa-2x"></i>
             </a>
@@ -30,7 +30,7 @@
 
       </div>
 
-      <div id="myDropdown" class="ml-2 pr-2 dropdown-content" style="width: 100%;">
+      <div id="Dropdown" class="ml-2 pr-2 dropdown-content" style="width: 100%;">
         <a role="button" [routerLink]="['changePassword']">Change Password</a>
         <a  role="button" (click)="onLogout()">Log Out</a>
       </div>
