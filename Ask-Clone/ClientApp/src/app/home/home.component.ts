@@ -12,8 +12,12 @@ import { DataService } from '../shared/data.service';
 })
 export class HomeComponent implements OnInit {
 
-  constructor(private title: Title, private authService: AuthService, private userService: UserService,
+  constructor(
+    private title: Title,
+    private authService: AuthService,
+    private userService: UserService,
     private dataService: DataService) { }
+
   questions: Question[] = [];
   showComponent: boolean = false;
 
@@ -21,13 +25,13 @@ export class HomeComponent implements OnInit {
   {
     this.title.setTitle("Ask-Clone");
     if (this.authService.isLoggedIn) {
-      this.userService.getHomeQuestions().subscribe({
+      this.userService.getHomeQuestions()
+        .subscribe({
         next: questions => {
           this.questions = questions;
           this.dataService.sort(this.questions);
           this.showComponent = true;
-        },
-        error: err => console.log(err)
+        }
       });
     }
   }

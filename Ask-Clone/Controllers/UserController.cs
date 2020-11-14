@@ -108,28 +108,35 @@ namespace Ask_Clone.Controllers
             }
         }
 
-        [HttpGet("RefreshToken")]
-        //Get => api/User/RefreshToken
-        public async Task<ActionResult> RefreshToken()
+        [AllowAnonymous]
+        [HttpHead("RefreshToken/{username}")]
+        //Head => api/User/RefreshToken/username
+        public async Task<ActionResult> RefreshToken(string username)
         {
             try
             {
-                string username = User.Claims.First(o => o.Type == "UserName").Value;
                 var user = await _userManager.FindByNameAsync(username);
-                if (user == null) return StatusCode(StatusCodes.Status401Unauthorized);
-
                 var refreshToken = Request.Cookies["RefreshToken"];
-                if((!string.IsNullOrEmpty(refreshToken)) && (user.RefreshToken == refreshToken))
+                
+                if((user != null) && (!string.IsNullOrEmpty(refreshToken)) && (user.RefreshToken == refreshToken))
                 {
                     var token = _jwtCreator.GenerateToken(username);
-                    Response.Cookies.Append("Token", token);
+                    Response.Cookies.Append("Token", token, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        Expires = DateTime.Now.AddHours(1)
+                    });
 
                     return Ok();
                 }
                 else
                 {
-                    user.RefreshToken = "";
-                    await _userManager.UpdateAsync(user);
+                    if (user != null)
+                    {
+                        user.RefreshToken = "";
+                        await _userManager.UpdateAsync(user);
+                    }
                     
                     Response.Cookies.Delete("Token");
                     Response.Cookies.Delete("RefreshToken");

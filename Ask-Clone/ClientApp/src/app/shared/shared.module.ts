@@ -7,14 +7,17 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import {TimeAgoPipe} from 'time-ago-pipe';
 
-import { UserService } from './user-service';
 import { ConfirmEqualDirective } from './confirm-equal-directive.directive';
-import { AuthService } from './auth.service';
-import { AuthInterceptor } from './auth-interceptor';
-import { DataService } from './data.service';
-import { RoutingGuard } from './routing-guard.service';
+
 import { OpenDialogComponent } from './open-dialog/open-dialog.component';
 import { FollowComponent } from './follow/follow.component';
+
+import { AuthService } from './auth.service';
+import { UserService } from './user-service';
+import { DataService } from './data.service';
+import { RoutingGuard } from './routing-guard.service';
+import { ErrorInterceptor } from './error-interceptor';
+
 
 
 
@@ -40,12 +43,16 @@ TimeAgoPipe,
 OpenDialogComponent,
 FollowComponent],
 
-providers:[UserService,
-AuthService,DataService,RoutingGuard,
-{
-  provide:HTTP_INTERCEPTORS,
-  useClass: AuthInterceptor,
-  multi: true
-}]
+providers:[
+  AuthService,
+  UserService,
+  DataService,
+  RoutingGuard,
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: ErrorInterceptor,
+    multi: true
+  }
+]
 })
 export class SharedModule { }

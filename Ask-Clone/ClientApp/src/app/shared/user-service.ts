@@ -1,16 +1,17 @@
 import { HttpClient } from "@angular/common/http";
 import { LoginUser } from "./login-user";
 import { Injectable } from "@angular/core";
-import { Router } from "@angular/router";
 import { RegisterUser } from "./register-user";
 import { SearchResult } from "./search-result";
 import { Observable } from "rxjs";
 import { Question } from "./question";
 import { Passwords } from "./passwordsChange";
 
+
 @Injectable()
 export class UserService {
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(
+    private http: HttpClient) { }
 
   searchResult: SearchResult[] = [];
 
@@ -23,6 +24,12 @@ export class UserService {
   login(user: LoginUser) {
     return this.http.post(this.baseUrl + 'login', user);
   }
+
+  refreshToken(username: string)
+  {
+    return this.http.head(this.baseUrl + "RefreshToken/" + username);
+  }
+
 
   logout() {
     return this.http.get(this.baseUrl + "Logout");
@@ -54,6 +61,7 @@ export class UserService {
   isFollowed(username: string): Observable<boolean> {
     return this.http.get<boolean>(this.baseUrl + 'isfollowing/' + username);
   }
+
 
   getFollowers(username: string) {
     return this.http.get(this.baseUrl + 'followers/' + username);

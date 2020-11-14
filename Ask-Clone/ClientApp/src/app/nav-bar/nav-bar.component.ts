@@ -5,12 +5,18 @@ import { UserService } from '../shared/user-service';
 
 @Component({
   selector: 'app-nav-bar',
+  host:{
+    '(document:click)':'onClick($event)'
+  },
   templateUrl: './nav-bar.component.html',
   styleUrls: ['./nav-bar.component.css']
 })
 export class NavBarComponent{
 
-  constructor(private auth:AuthService, private router:Router, private userService:UserService) { }
+  constructor(
+    private auth:AuthService,
+    private router:Router, 
+    private userService:UserService) { }
 
   searchValue:string = '';
 
@@ -18,6 +24,13 @@ export class NavBarComponent{
     document.getElementById("Dropdown").classList.toggle("show");
   }
 
+  onClick(event)
+  {
+    if(!event.target.matches(".fa-cog"))
+    {
+      document.getElementById("Dropdown").classList.remove("show");
+    }
+  }
   onKeyPressed(event)
   {
     if(event.keyCode == 13)
