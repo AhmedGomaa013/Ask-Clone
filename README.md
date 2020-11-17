@@ -4,7 +4,7 @@ A web application clone of ask.fm where users could ask each other questions, an
 
 # Installation and Usage
 
-- Clone this Repo. $git clone https://github.com/AhmedGomaa013/Notes.git
+- Clone this Repo. $git clone https://github.com/AhmedGomaa013/Ask-Clone.git
 - Open the solution using Vs.
 - Update the environment variable("Token" for the secret key for Jwt) from Properities of the Solution.
 - Update database using one of the following:
