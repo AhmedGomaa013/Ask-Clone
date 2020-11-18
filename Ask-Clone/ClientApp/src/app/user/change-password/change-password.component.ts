@@ -45,6 +45,7 @@ export class ChangePasswordComponent implements OnInit {
               this.toast.success('Password changed Successfully', 'Successful Operation');
               this.authService.clearCreds();
               this.router.navigateByUrl('login');
+              this.toast.success('Log in again with the new password');
             }
             else{
               this.errorMessage = "";

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Ask_Clone.Controllers
 {
@@ -22,14 +23,21 @@ namespace Ask_Clone.Controllers
         private readonly IQuestionsRepository _questionsRepository;
         private readonly IUserRepository _userRepository;
         private readonly JWTCreator _jwtCreator;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(UserManager<ApplicationUser> userManager,IQuestionsRepository questionsRepository,
-            IUserRepository userRepository,JWTCreator jwtCreator)
+        public UserController(
+            UserManager<ApplicationUser> userManager,
+            IQuestionsRepository questionsRepository,
+            IUserRepository userRepository,
+            JWTCreator jwtCreator,
+            ILogger<UserController> logger
+            )
         {
             _userManager = userManager;
             _questionsRepository = questionsRepository;
             _userRepository = userRepository;
             _jwtCreator = jwtCreator;
+            _logger = logger;
         }
         
         [AllowAnonymous]
@@ -54,11 +62,13 @@ namespace Ask_Clone.Controllers
                 }
                 else
                 {
+                    _logger.LogWarning($"DateTime: {DateTime.Now} -- Error: User Format isn't right from Register");
                     return BadRequest(ModelState);
                 }
             }
-            catch (Exception )
+            catch (Exception e)
             {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
             }
         }
@@ -85,10 +95,13 @@ namespace Ask_Clone.Controllers
                         {
                             AppendCookies(token, user.RefreshToken);
 
+                            _logger.LogInformation($"DateTime: {DateTime.Now} -- User {user.UserName} has logged in");
+
                             return Ok();
                         }
                         else
                         {
+                            _logger.LogWarning($"DateTime: {DateTime.Now} -- Error: Couldn't update the refresh token of into database");
                             return BadRequest();
                         }
                     }
@@ -99,11 +112,13 @@ namespace Ask_Clone.Controllers
                 }
                 else
                 {
+                    _logger.LogWarning($"DateTime: {DateTime.Now} -- Error: Login Format isn't right from Login");
                     return BadRequest(ModelState);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to get user data");
             }
         }
@@ -132,55 +147,34 @@ namespace Ask_Clone.Controllers
                 }
                 else
                 {
-                    if (user != null)
-                    {
-                        user.RefreshToken = "";
-                        await _userManager.UpdateAsync(user);
-                    }
-                    
-                    Response.Cookies.Delete("Token");
-                    Response.Cookies.Delete("RefreshToken");
-                    Response.Cookies.Delete("UNL");
+                    DeleteCookies();
 
+                    _logger.LogInformation($"DateTime: {DateTime.Now} -- User {user.UserName} has forced to log out due to bad refresh token");
                     return StatusCode(StatusCodes.Status401Unauthorized);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to get user data");
             }
         }
         
         [HttpGet("Logout")]
         //Get => api/User/Logout
-        public async Task<ActionResult> Logout()
+        public ActionResult Logout()
         {
             try
             {
-                string username = User.Claims.First(o => o.Type == "UserName").Value;
-                var user = await _userManager.FindByNameAsync(username);
-                if (user == null) return NotFound();
+                DeleteCookies();
 
-                user.RefreshToken = "";
+                _logger.LogInformation($"DateTime: {DateTime.Now} -- User {User.Claims.First(o => o.Type == "UserName").Value} has logged out");
 
-                var result = await _userManager.UpdateAsync(user);
-                if(result.Succeeded)
-                {
-                    Response.Cookies.Delete("Token");
-                    Response.Cookies.Delete("RefreshToken");
-                    Response.Cookies.Delete("UNL");
-
-                    return Ok();
-                }
-                else
-                {
-                    return BadRequest();
-                }
+                return Ok();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to get user data");
             }
         }
@@ -197,10 +191,19 @@ namespace Ask_Clone.Controllers
 
                 var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
+                if (result.Succeeded)
+                {
+                    DeleteCookies();
+
+                    _logger.LogInformation($"DateTime: {DateTime.Now} -- User {username} has changed the password");
+                    _logger.LogInformation($"DateTime: {DateTime.Now} -- User {username} has forced to log out due to password change");
+                }
+
                 return Ok(result);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to get user data");
             }
         }
@@ -239,8 +242,9 @@ namespace Ask_Clone.Controllers
 
                 return Ok(returnUsers);
             }
-            catch(Exception)
+            catch(Exception e)
             {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
             }
         }
@@ -249,35 +253,43 @@ namespace Ask_Clone.Controllers
         //Get => api/User/Home/Questions
         public async Task<ActionResult> GetHomeQuestions()
         {
-            var username = User.Claims.First(o => o.Type == "UserName").Value;
-            var user = await _userManager.FindByNameAsync(username);
-            
-            var following = _userRepository.GetFollowing(user);
-            following.Add(user);
-
-            List<QuestionsViewModel> returnQuestions = new List<QuestionsViewModel>();
-            
-            foreach(var item in following)
+            try
             {
-                var questions = _questionsRepository.GetAllAnsweredQuestionsByUser(item.UserName);
-                foreach(var question in questions)
+                var username = User.Claims.First(o => o.Type == "UserName").Value;
+                var user = await _userManager.FindByNameAsync(username);
+
+                var following = _userRepository.GetFollowing(user);
+                following.Add(user);
+
+                List<QuestionsViewModel> returnQuestions = new List<QuestionsViewModel>();
+
+                foreach (var item in following)
                 {
-                    var returnQuestion = new QuestionsViewModel()
+                    var questions = _questionsRepository.GetAllAnsweredQuestionsByUser(item.UserName);
+                    foreach (var question in questions)
                     {
-                        QuestionId = question.QuestionId,
-                        Answer = question.Answer,
-                        Question = question.Question,
-                        QuestionTo = question.QuestionTo.UserName,
-                        Time = question.Time,
-                        IsAnswered = question.IsAnswered
-                    };
+                        var returnQuestion = new QuestionsViewModel()
+                        {
+                            QuestionId = question.QuestionId,
+                            Answer = question.Answer,
+                            Question = question.Question,
+                            QuestionTo = question.QuestionTo.UserName,
+                            Time = question.Time,
+                            IsAnswered = question.IsAnswered
+                        };
 
-                    if (question.QuestionFrom != null) returnQuestion.QuestionFrom = question.QuestionFrom.UserName;
-                    returnQuestions.Add(returnQuestion);
+                        if (question.QuestionFrom != null) returnQuestion.QuestionFrom = question.QuestionFrom.UserName;
+                        returnQuestions.Add(returnQuestion);
+                    }
                 }
-            }
 
-            return Ok(returnQuestions);
+                return Ok(returnQuestions);
+            }
+            catch(Exception e)
+            {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
+            }
         }
 
 
@@ -300,6 +312,14 @@ namespace Ask_Clone.Controllers
             
             Response.Cookies.Append("UNL", "LIT", new CookieOptions()
             { Expires = DateTime.Now.AddMonths(3), Secure = true, HttpOnly = false });
+        }
+
+
+        private void DeleteCookies()
+        {
+            Response.Cookies.Delete("Token");
+            Response.Cookies.Delete("RefreshToken");
+            Response.Cookies.Delete("UNL");
         }
 
         /// <summary>

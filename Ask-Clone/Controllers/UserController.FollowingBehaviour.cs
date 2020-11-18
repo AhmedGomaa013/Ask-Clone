@@ -3,6 +3,7 @@ using Ask_Clone.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,11 +41,13 @@ namespace Ask_Clone.Controllers
                 }
                 else
                 {
+                    _logger.LogWarning($"DateTime: {DateTime.Now} -- Error: Couldn't add a follow into database");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
             }
         }
@@ -75,11 +78,13 @@ namespace Ask_Clone.Controllers
                 }
                 else
                 {
+                    _logger.LogWarning($"DateTime: {DateTime.Now} -- Error: Couldn't delete a follow into database");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
             }
         }
@@ -103,6 +108,7 @@ namespace Ask_Clone.Controllers
 
                 var users = _userRepository.GetFollowers(user);
                 List<UserInfoViewModel> followers = new List<UserInfoViewModel>();
+
                 foreach (var item in users)
                 {
                     UserInfoViewModel follower = new UserInfoViewModel()
@@ -118,11 +124,14 @@ namespace Ask_Clone.Controllers
                     }
                     followers.Add(follower);
                 }
+
                 followers.OrderBy(o => o.UserName);
+
                 return Ok(followers);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
             }
         }
@@ -167,8 +176,9 @@ namespace Ask_Clone.Controllers
                 followingUsers.OrderBy(o => o.UserName);
                 return Ok(followingUsers);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
             }
         }
@@ -199,9 +209,9 @@ namespace Ask_Clone.Controllers
                 }
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
             }
         }
@@ -211,13 +221,21 @@ namespace Ask_Clone.Controllers
         //Get => api/User/FollowingFollowersNumber/username
         public async Task<ActionResult> GetFollowingFollowersNumber(string username)
         {
-            var user = await _userManager.FindByNameAsync(username);
-            if (user == null) return StatusCode(StatusCodes.Status404NotFound);
+            try
+            {
+                var user = await _userManager.FindByNameAsync(username);
+                if (user == null) return StatusCode(StatusCodes.Status404NotFound);
 
-            var followers = _userRepository.GetFollowers(user);
-            var following = _userRepository.GetFollowing(user);
+                var followers = _userRepository.GetFollowers(user);
+                var following = _userRepository.GetFollowing(user);
 
-            return Ok(new { followers = followers.Count, following = following.Count });
+                return Ok(new { followers = followers.Count, following = following.Count });
+            }
+            catch(Exception e)
+            {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
+            }
         }
     }
 }

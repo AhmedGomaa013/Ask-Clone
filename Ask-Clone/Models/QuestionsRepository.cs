@@ -1,5 +1,6 @@
 ﻿using Ask_Clone.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,15 @@ namespace Ask_Clone.Models
     public class QuestionsRepository : IQuestionsRepository
     {
         private readonly AuthenticationContext _authenticationContext;
+        private readonly ILogger<QuestionsRepository> _logger;
 
-        public QuestionsRepository(AuthenticationContext authenticationContext)
+        public QuestionsRepository(
+            AuthenticationContext authenticationContext,
+            ILogger<QuestionsRepository> logger
+            )
         {
             _authenticationContext = authenticationContext;
+            _logger = logger;
         }
 
         public List<Questions> GetAllAnsweredQuestionsByUser(string user)
@@ -25,9 +31,9 @@ namespace Ask_Clone.Models
                 .Include(q => q.QuestionTo).Include(q => q.QuestionFrom)
                 .ToList();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return null;
             }
         }
@@ -41,9 +47,9 @@ namespace Ask_Clone.Models
                 .Include(q => q.QuestionTo).Include(q=>q.QuestionFrom)
                 .ToList();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return null;
             }
         }
@@ -55,26 +61,48 @@ namespace Ask_Clone.Models
                 return _authenticationContext.Questions
                     .Where(q => q.QuestionTo.UserName == user && q.QuestionId == id).FirstOrDefault();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return null;
             }
         }
 
         public void AddQuestion(Questions question)
         {
-            _authenticationContext.Add(question);
+            try
+            {
+                _authenticationContext.Add(question);
+            }
+            catch(Exception e)
+            {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
+            }
         }
 
         public void DeleteQuestion(Questions question)
         {
-            _authenticationContext.Remove(question);
+            try
+            {
+                _authenticationContext.Remove(question);
+            }
+            catch(Exception e)
+            {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
+            }
         }
 
         public bool SaveAll()
         {
-            return _authenticationContext.SaveChanges() > 0;
+            try
+            {
+                return _authenticationContext.SaveChanges() > 0;
+            }
+            catch(Exception e)
+            {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
+                return false;
+            }
         }
     }
 }

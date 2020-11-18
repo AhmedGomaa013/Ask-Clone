@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,12 +20,17 @@ namespace Ask_Clone.Controllers
     {
         private readonly IQuestionsRepository _questionsRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<QuestionsController> _logger;
 
-        public QuestionsController(IQuestionsRepository questionsRepository,
-            UserManager<ApplicationUser> userManager)
+        public QuestionsController(
+            IQuestionsRepository questionsRepository,
+            UserManager<ApplicationUser> userManager,
+            ILogger<QuestionsController> logger
+            )
         {
             _questionsRepository = questionsRepository;
             _userManager = userManager;
+            _logger = logger;
         }
 
         [AllowAnonymous]
@@ -58,8 +64,9 @@ namespace Ask_Clone.Controllers
                 
                 return Ok(answeredQuestions);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
             }
         }
@@ -91,8 +98,9 @@ namespace Ask_Clone.Controllers
                 }
                 return Ok(questions);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
             }
         }
@@ -133,16 +141,19 @@ namespace Ask_Clone.Controllers
                     }
                     else
                     {
+                        _logger.LogWarning($"DateTime: {DateTime.Now} -- Error: Couldn't save the question into database");
                         return BadRequest("Failed to save your question");
                     }
                 }
                 else
                 {
+                    _logger.LogWarning($"DateTime: {DateTime.Now} -- Error: Question Format isn't right from Post");
                     return BadRequest(ModelState);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
             }
         }
@@ -153,7 +164,11 @@ namespace Ask_Clone.Controllers
         {
             try
             {
-                if ((model.Answer == null) || (model.IsAnswered)) return BadRequest(ModelState);
+                if ((model.Answer == null) || (model.IsAnswered))
+                {
+                    _logger.LogWarning($"DateTime: {DateTime.Now} -- Error: Question is answered before");
+                    return BadRequest(ModelState); 
+                }
 
                 if (ModelState.IsValid)
                 {
@@ -172,16 +187,19 @@ namespace Ask_Clone.Controllers
                     }
                     else
                     {
+                        _logger.LogWarning($"DateTime: {DateTime.Now} -- Error: Couldn't edit the question in the database");
                         return BadRequest("Failed to save a your question");
                     }
                 }
                 else
                 {
+                    _logger.LogWarning($"DateTime: {DateTime.Now} -- Error: Question Format isn't right from Put");
                     return BadRequest(ModelState);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve data");
             }
         }
@@ -205,12 +223,13 @@ namespace Ask_Clone.Controllers
                 }
                 else
                 {
+                    _logger.LogWarning($"DateTime: {DateTime.Now} -- Error: Couldn't detele the question from the database");
                     return BadRequest("Failed to delete the Question");
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                _logger.LogError($"DateTime:{DateTime.Now} -- Error:{e.Message}\n{e.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to get note");
             }
         }
