@@ -148,8 +148,10 @@ namespace Ask_Clone.Controllers
                 else
                 {
                     DeleteCookies();
-
-                    _logger.LogInformation($"DateTime: {DateTime.Now} -- User {user.UserName} has forced to log out due to bad refresh token");
+                    if (user != null)
+                    { 
+                        _logger.LogInformation($"DateTime: {DateTime.Now} -- User {user.UserName} has forced to log out due to bad refresh token"); 
+                    }
                     return StatusCode(StatusCodes.Status401Unauthorized);
                 }
             }
